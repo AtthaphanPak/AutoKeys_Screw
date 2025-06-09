@@ -148,7 +148,7 @@ class CAutoFITs_Screw():
             operation = "OB120"
             # print("operation:\t", operation)
             try:
-                BN_Screw = df.loc[(df["Unique ID"] == "SCAN SERIAL MB") & (df["Status"] == "OK"), "Value"].tail(1).squeeze()
+                BN_Screw = df.loc[(df["Unique ID"] == "Screw Material") & (df["Status"] == "OK"), "Value"].tail(1).squeeze()
                 DB2OB_01 = df.loc[(df["Unique ID"] == "DB2OB.01") & (df["Status"] == "OK") & (df["Value"] == "OK"), ["Actual Torque", "Actual Angle", "Status"]].tail(1).squeeze()
                 DB2OB_02 = df.loc[(df["Unique ID"] == "DB2OB.02") & (df["Status"] == "OK") & (df["Value"] == "OK"), ["Actual Torque", "Actual Angle", "Status"]].tail(1).squeeze()
                 DB2OB_03 = df.loc[(df["Unique ID"] == "DB2OB.03") & (df["Status"] == "OK") & (df["Value"] == "OK"), ["Actual Torque", "Actual Angle", "Status"]].tail(1).squeeze()
@@ -381,6 +381,7 @@ class CAutoFITs_Screw():
 while True:
     minedData=CAutoFITs_Screw()
     minedData.aggregateAllDataAndSaveToFile()
-    time_sec = 60
-    print("Sleep:\t",time_sec, "\tsecond")
+    time_sec = 30
+    now = datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
+    print(f"{now}\tSleep:\t{time_sec}\tsecond")
     time.sleep(time_sec)
