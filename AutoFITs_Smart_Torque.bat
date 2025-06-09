@@ -1,2 +1,2 @@
 cd C:\Projects\AutoKeys_Screw
-python AutoKeys_Screw.py
+python Sources\AutoKeys_Screw.py
