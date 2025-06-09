@@ -35,8 +35,8 @@ def fn_Log(model: str, operation : str, parameters : str, values : str, revision
     values =  values + ";" + list_parameters["Shift"]
     fn_initDB = lib.fn_initDB(model,operation, revision ,"dbInnoviz")
     if fn_initDB == "True":
-        print(parameters)
-        print(values)
+        # print(parameters)
+        # print(values)
         fn_log = lib.fn_log(model, operation, revision, parameters, values, ";")
         if fn_log == "True":
             return True
@@ -87,7 +87,3 @@ def FitsDebugging():
         output = "No valid log"
 
     return output
-
-parameters = "EN;SN unit;BN_Screw;Program Name;Fixture jig;Torque_1;Angle_1;Result_1;Torque_2;Angle_2;Result_2;Torque_3;Angle_3;Result_3;Torque_4;Angle_4;Result_4;Torque_5;Angle_5;Result_5;Torque_6;Angle_6;Result_6;Torque_7;Angle_7;Result_7;Torque_8;Angle_8;Result_8;Result;Shift;MC"
-values = "11111;CIN250000230;IQR12346;Screwing MB to Top cover;DUMMY;0.91;52;PASS;0.91;53;PASS;0.91;90;PASS;0.9;49;PASS;0.9;63;PASS;0.9;44;PASS;0.9;54;PASS;0.91;54;PASS;PASS;NIGHT;NOTE-DELL5588"
-print(fn_Log("Main Line", "IN230", parameters, values))

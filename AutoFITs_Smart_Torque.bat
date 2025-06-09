@@ -1,2 +1,2 @@
-cd C:\Projects\Auto-FITs-Scanner\AutoFITs_Smart_Torque.bat
-python AutoFITs_Torque_Scanner.py
+cd C:\Projects\AutoKeys_Screw
+python AutoKeys_Screw.py

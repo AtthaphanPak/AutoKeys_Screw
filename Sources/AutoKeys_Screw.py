@@ -5,9 +5,7 @@ import tkinter as tk
 import pandas as pd
 import glob, os, shutil
 import configparser
-import pandas as pd
 import time
-import re
 
 from fitsdll import fn_Handshake, fn_Log
 
@@ -92,7 +90,7 @@ class CAutoFITs_Screw():
                 data = {
                     "EN": Operator,
                     "SN unit": self.serial,
-                    "BN_Screw": CAutoFITs_Screw.check_pd_filter(BN_Screw),
+                    "BN Screw": CAutoFITs_Screw.check_pd_filter(BN_Screw),
                     "Program Name": "Screwing MB to Top cover",
                     "Fixture jig": self.fixture,
                     "Torque_1": CAutoFITs_Screw.check_pd_filter(MB2TC_01["Actual Torque"]),
@@ -159,7 +157,7 @@ class CAutoFITs_Screw():
                     "SN OB": self.serial,
                     "EN": Operator,     
                     "Operation": operation,  
-                    "BN_Screw": CAutoFITs_Screw.check_pd_filter(BN_Screw),
+                    "BN Screw": CAutoFITs_Screw.check_pd_filter(BN_Screw),
                     "Program Name": "Detector to OB",
                     "Fixture jig": self.fixture,
                     "Torque_1": CAutoFITs_Screw.check_pd_filter(DB2OB_01["Actual Torque"]),
@@ -217,7 +215,7 @@ class CAutoFITs_Screw():
                     "EN": Operator, 
                     "Operation": operation, 
                     "Interface PBA SN": CAutoFITs_Screw.check_pd_filter(PBA_SN),
-                    "BN_Screw": CAutoFITs_Screw.check_pd_filter(BN_Screw),   
+                    "BN Screw": CAutoFITs_Screw.check_pd_filter(BN_Screw),   
                     "Program Name": "Interface connector to Top",
                     "Fixture jig": self.fixture,
                     "Torque_1": CAutoFITs_Screw.check_pd_filter(IC2TC_01["Actual Torque"]),
