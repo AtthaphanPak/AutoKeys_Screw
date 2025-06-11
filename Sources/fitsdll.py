@@ -87,3 +87,5 @@ def FitsDebugging():
         output = "No valid log"
 
     return output
+
+# print(fn_Handshake("Main line", "IN230", "CIN251230004"))

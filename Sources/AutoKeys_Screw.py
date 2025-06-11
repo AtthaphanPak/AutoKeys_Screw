@@ -60,6 +60,10 @@ class CAutoFITs_Screw():
             return input    
             
     def openDatabaseFile(self, file):
+        root = tk.Tk()
+        root.withdraw()
+        root.attributes("-topmost", True)
+
         now = datetime.now().strftime("%Y-%m-%d %H_%M_%S")
         # Read file
         df = pd.read_csv(file)
@@ -76,16 +80,24 @@ class CAutoFITs_Screw():
         if station == self.IN230:
             self.model = "Main line"
             operation = "IN230"
+            status = df["Unique ID"].str.contains("Complete Process", case=False, na=False).any()
+            if not status:
+                print(f"File {file} is not complete yet")
+                minedData = df_output
+                operation = operation
+                current_path = file
+                CompactPathName = "NG"
+                return minedData, operation, current_path, CompactPathName
             try:
                 BN_Screw = df.loc[(df["Unique ID"] == "SCAN SERIAL MB") & (df["Status"] == "OK"), "Value"].tail(1).squeeze()
-                MB2TC_01 = df.loc[(df["Unique ID"] == "MB2TC.01") & (df["Status"] == "OK") & (df["Value"] == "OK"), ["Actual Torque", "Actual Angle", "Status"]].tail(1).squeeze()
-                MB2TC_02 = df.loc[(df["Unique ID"] == "MB2TC.02") & (df["Status"] == "OK") & (df["Value"] == "OK"), ["Actual Torque", "Actual Angle", "Status"]].tail(1).squeeze()
-                MB2TC_03 = df.loc[(df["Unique ID"] == "MB2TC.03") & (df["Status"] == "OK") & (df["Value"] == "OK"), ["Actual Torque", "Actual Angle", "Status"]].tail(1).squeeze()
-                MB2TC_04 = df.loc[(df["Unique ID"] == "MB2TC.04") & (df["Status"] == "OK") & (df["Value"] == "OK"), ["Actual Torque", "Actual Angle", "Status"]].tail(1).squeeze()
-                MB2TC_05 = df.loc[(df["Unique ID"] == "MB2TC.05") & (df["Status"] == "OK") & (df["Value"] == "OK"), ["Actual Torque", "Actual Angle", "Status"]].tail(1).squeeze()
-                MB2TC_06 = df.loc[(df["Unique ID"] == "MB2TC.06") & (df["Status"] == "OK") & (df["Value"] == "OK"), ["Actual Torque", "Actual Angle", "Status"]].tail(1).squeeze()
-                MB2TC_07 = df.loc[(df["Unique ID"] == "MB2TC.07") & (df["Status"] == "OK") & (df["Value"] == "OK"), ["Actual Torque", "Actual Angle", "Status"]].tail(1).squeeze()
-                MB2TC_08 = df.loc[(df["Unique ID"] == "MB2TC.08") & (df["Status"] == "OK") & (df["Value"] == "OK"), ["Actual Torque", "Actual Angle", "Status"]].tail(1).squeeze()
+                MB2TC_01 = CAutoFITs_Screw.get_last_valid_row(df, "MB2TC.01")
+                MB2TC_02 = CAutoFITs_Screw.get_last_valid_row(df, "MB2TC.02")
+                MB2TC_03 = CAutoFITs_Screw.get_last_valid_row(df, "MB2TC.03")
+                MB2TC_04 = CAutoFITs_Screw.get_last_valid_row(df, "MB2TC.04")
+                MB2TC_05 = CAutoFITs_Screw.get_last_valid_row(df, "MB2TC.05")
+                MB2TC_06 = CAutoFITs_Screw.get_last_valid_row(df, "MB2TC.06")
+                MB2TC_07 = CAutoFITs_Screw.get_last_valid_row(df, "MB2TC.07")
+                MB2TC_08 = CAutoFITs_Screw.get_last_valid_row(df, "MB2TC.08")
                 
                 data = {
                     "EN": Operator,
@@ -277,7 +289,7 @@ class CAutoFITs_Screw():
 
         if convertstatus is True:      
             # Replace "OK" with "PASS" in the specified columns
-            df_output[result_columns] = df_output[result_columns].replace("OK", "PASS")
+            df_output[result_columns] = df_output[result_columns].replace("OK", "PASS").replace("NOK", "FAIL")
             df_output["Result"] = df_output[result_columns].apply(lambda x: "PASS" if all(x == "PASS") else "FAIL", axis=1)
             # print("Create Compact file Serial:", df_output["SN Scanner"][0])
             # saving the dataframe
@@ -368,6 +380,27 @@ class CAutoFITs_Screw():
                 os.rename(CompactPathName, rename)
                 CAutoFITs_Screw.move_folder(os.path.dirname(current_path), os.path.join(FITS_Handcheck_Fail, os.path.basename(os.path.dirname(current_path))))
 
+    def get_last_valid_row(df, uid):
+        ok_df = df.loc[
+            (df["Unique ID"] == uid) &
+            (df["Status"] == "OK") &
+            (df["Value"] == "OK"),
+            ["Actual Torque", "Actual Angle", "Status"]
+            ]
+        if not ok_df.empty:
+            return ok_df.tail(1).squeeze()
+        
+        nok_df = df.loc[
+            (df["Unique ID"] == uid) &
+            (df["Status"] == "NOK") &
+            (df["Value"] == "NOK"),
+            ["Actual Torque", "Actual Angle", "Status"]
+            ]
+        if not nok_df.empty:
+            return nok_df.tail(1).squeeze()
+        
+        return None
+    
     def aggregateAllDataAndSaveToFile(self):
         filesFound = CAutoFITs_Screw.findAllTorqueDatabaseFiles(self)
         for file in filesFound:
@@ -379,6 +412,7 @@ class CAutoFITs_Screw():
                 CAutoFITs_Screw.UploadDataToFITs(self,minedData,operation, current_path, CompactPathName)
 
 while True:
+    print("START")
     minedData=CAutoFITs_Screw()
     minedData.aggregateAllDataAndSaveToFile()
     time_sec = 30
