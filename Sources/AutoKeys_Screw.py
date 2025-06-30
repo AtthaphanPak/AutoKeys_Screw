@@ -22,6 +22,7 @@ class CAutoFITs_Screw():
             self.IN230 = config["FITS"].get("computer_name_IN230", "")
             self.OB120 = config["FITS"].get("computer_name_OB120", "")
             self.IN240 = config["FITS"].get("computer_name_IN240", "")
+            self.IN700 = config["FITS"].get("computer_name_IN700", "")
             self.fixture = config["FITS"].get("fixture", "")
         except Exception as error:
             print("Please check config.ini")
@@ -264,6 +265,82 @@ class CAutoFITs_Screw():
                     return minedData, operation, current_path, CompactPathName
                 
                 result_columns = ["Result_1", "Result_2", "Result_3", "Result_4", "Result_5", "Result_6"]
+                convertstatus = True
+            except Exception as error:
+                
+                print(f"{operation} file >> {file}")
+                print(error)
+                
+                messagebox.showerror("Process Message", f"FAIL to Generate Compact log file: {file}") 
+                
+                convertstatus = False
+
+        elif station == self.IN700:
+            self.model = "Main line"
+            operation = "IN700"
+            # print("operation:\t", operation)
+            try:
+                Top_cover = df.loc[(df["Unique ID"] == "SCAN SERIAL MB") & (df["Status"] == "OK"), "Value"].tail(1).squeeze()
+                BN_Screw = df.loc[(df["Unique ID"] == "SCREW Material") & (df["Status"] == "OK"), "Value"].tail(1).squeeze()
+                MB2TC_01 = df.loc[(df["Unique ID"] == "MB2TC.01") & (df["Status"] == "OK") & (df["Value"] == "OK"), ["Actual Torque", "Actual Angle", "Status"]].tail(1).squeeze()
+                MB2TC_02 = df.loc[(df["Unique ID"] == "MB2TC.02") & (df["Status"] == "OK") & (df["Value"] == "OK"), ["Actual Torque", "Actual Angle", "Status"]].tail(1).squeeze()
+                MB2TC_03 = df.loc[(df["Unique ID"] == "MB2TC.03") & (df["Status"] == "OK") & (df["Value"] == "OK"), ["Actual Torque", "Actual Angle", "Status"]].tail(1).squeeze()
+                MB2TC_03 = df.loc[(df["Unique ID"] == "MB2TC.03") & (df["Status"] == "OK") & (df["Value"] == "OK"), ["Actual Torque", "Actual Angle", "Status"]].tail(1).squeeze()
+                MB2TC_04 = df.loc[(df["Unique ID"] == "MB2TC.04") & (df["Status"] == "OK") & (df["Value"] == "OK"), ["Actual Torque", "Actual Angle", "Status"]].tail(1).squeeze()
+                MB2TC_05 = df.loc[(df["Unique ID"] == "MB2TC.05") & (df["Status"] == "OK") & (df["Value"] == "OK"), ["Actual Torque", "Actual Angle", "Status"]].tail(1).squeeze()
+                MB2TC_06 = df.loc[(df["Unique ID"] == "MB2TC.06") & (df["Status"] == "OK") & (df["Value"] == "OK"), ["Actual Torque", "Actual Angle", "Status"]].tail(1).squeeze()
+                MB2TC_06 = df.loc[(df["Unique ID"] == "MB2TC.07") & (df["Status"] == "OK") & (df["Value"] == "OK"), ["Actual Torque", "Actual Angle", "Status"]].tail(1).squeeze()
+                MB2TC_06 = df.loc[(df["Unique ID"] == "MB2TC.08") & (df["Status"] == "OK") & (df["Value"] == "OK"), ["Actual Torque", "Actual Angle", "Status"]].tail(1).squeeze()
+                
+                data = {
+                    "SN unit": self.serial,  
+                    "EN": Operator, 
+                    "Operation": operation, 
+                    "BN Top cover": CAutoFITs_Screw.check_pd_filter(Top_cover),
+                    "BN Screw": CAutoFITs_Screw.check_pd_filter(BN_Screw),   
+                    "Program Name": "Screwing Cover Screws Type1",
+                    "Fixture jig": self.fixture,
+                    "Torque_1": CAutoFITs_Screw.check_pd_filter(MB2TC_01["Actual Torque"]),
+                    "Angle_1": CAutoFITs_Screw.check_pd_filter(MB2TC_01["Actual Angle"]),
+                    "Result_1": CAutoFITs_Screw.check_pd_filter(MB2TC_01["Status"]),
+                    "Torque_2": CAutoFITs_Screw.check_pd_filter(MB2TC_02["Actual Torque"]),
+                    "Angle_2": CAutoFITs_Screw.check_pd_filter(MB2TC_02["Actual Angle"]),
+                    "Result_2": CAutoFITs_Screw.check_pd_filter(MB2TC_02["Status"]),
+                    "Torque_3": CAutoFITs_Screw.check_pd_filter(MB2TC_03["Actual Torque"]),
+                    "Angle_3": CAutoFITs_Screw.check_pd_filter(MB2TC_03["Actual Angle"]),
+                    "Result_3": CAutoFITs_Screw.check_pd_filter(MB2TC_03["Status"]),
+                    "Torque_4": CAutoFITs_Screw.check_pd_filter(MB2TC_04["Actual Torque"]),
+                    "Angle_4": CAutoFITs_Screw.check_pd_filter(MB2TC_04["Actual Angle"]),
+                    "Result_4": CAutoFITs_Screw.check_pd_filter(MB2TC_04["Status"]),
+                    "Torque_5": CAutoFITs_Screw.check_pd_filter(MB2TC_05["Actual Torque"]),
+                    "Angle_5": CAutoFITs_Screw.check_pd_filter(MB2TC_05["Actual Angle"]),
+                    "Result_5": CAutoFITs_Screw.check_pd_filter(MB2TC_05["Status"]),
+                    "Torque_6": CAutoFITs_Screw.check_pd_filter(MB2TC_06["Actual Torque"]),
+                    "Angle_6": CAutoFITs_Screw.check_pd_filter(MB2TC_06["Actual Angle"]),
+                    "Result_6": CAutoFITs_Screw.check_pd_filter(MB2TC_06["Status"]),
+                    "Torque_7": CAutoFITs_Screw.check_pd_filter(MB2TC_07["Actual Torque"]),
+                    "Angle_7": CAutoFITs_Screw.check_pd_filter(MB2TC_07["Actual Angle"]),
+                    "Result_7": CAutoFITs_Screw.check_pd_filter(MB2TC_07["Status"]),
+                    "Torque_8": CAutoFITs_Screw.check_pd_filter(MB2TC_08["Actual Torque"]),
+                    "Angle_8": CAutoFITs_Screw.check_pd_filter(MB2TC_08["Actual Angle"]),
+                    "Result_8": CAutoFITs_Screw.check_pd_filter(MB2TC_08["Status"]),
+                    "Result": "None"
+                }
+
+                # Convert the dictionary to a DataFrame
+                df_output = pd.DataFrame([data])
+                nan_positions = df_output.isna()
+                if nan_positions.any().any():
+                    
+                    print(f"File {file} is not complete yet")
+                    
+                    minedData = df_output
+                    operation = operation
+                    current_path = file
+                    CompactPathName = "NG"
+                    return minedData, operation, current_path, CompactPathName
+                
+                result_columns = ["Result_1", "Result_2", "Result_3", "Result_4", "Result_5", "Result_6", "Result_7", "Result_8"]
                 convertstatus = True
             except Exception as error:
                 
