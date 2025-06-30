@@ -289,8 +289,8 @@ class CAutoFITs_Screw():
                 MB2TC_04 = df.loc[(df["Unique ID"] == "MB2TC.04") & (df["Status"] == "OK") & (df["Value"] == "OK"), ["Actual Torque", "Actual Angle", "Status"]].tail(1).squeeze()
                 MB2TC_05 = df.loc[(df["Unique ID"] == "MB2TC.05") & (df["Status"] == "OK") & (df["Value"] == "OK"), ["Actual Torque", "Actual Angle", "Status"]].tail(1).squeeze()
                 MB2TC_06 = df.loc[(df["Unique ID"] == "MB2TC.06") & (df["Status"] == "OK") & (df["Value"] == "OK"), ["Actual Torque", "Actual Angle", "Status"]].tail(1).squeeze()
-                MB2TC_06 = df.loc[(df["Unique ID"] == "MB2TC.07") & (df["Status"] == "OK") & (df["Value"] == "OK"), ["Actual Torque", "Actual Angle", "Status"]].tail(1).squeeze()
-                MB2TC_06 = df.loc[(df["Unique ID"] == "MB2TC.08") & (df["Status"] == "OK") & (df["Value"] == "OK"), ["Actual Torque", "Actual Angle", "Status"]].tail(1).squeeze()
+                MB2TC_07 = df.loc[(df["Unique ID"] == "MB2TC.07") & (df["Status"] == "OK") & (df["Value"] == "OK"), ["Actual Torque", "Actual Angle", "Status"]].tail(1).squeeze()
+                MB2TC_08 = df.loc[(df["Unique ID"] == "MB2TC.08") & (df["Status"] == "OK") & (df["Value"] == "OK"), ["Actual Torque", "Actual Angle", "Status"]].tail(1).squeeze()
                 
                 data = {
                     "SN unit": self.serial,  
