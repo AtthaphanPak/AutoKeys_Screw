@@ -1,4 +1,5 @@
 import socket
+from datetime import datetime
 import time
 # กำหนดค่าคงที่สำหรับ SQS Software
 SQS_IP = '192.168.1.20'  
@@ -40,7 +41,8 @@ def receive_and_print_signals():
                     client_socket = None
                     continue # กลับไปพยายามเชื่อมต่อใหม่
                 received_telegram = data.decode('ascii').strip()
-                print(f"Received: {received_telegram}")
+                now = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+                print(f"{now} | Received: {received_telegram}")
                 # สามารถเพิ่ม logic สำหรับการตอบกลับ LB Telegram ได้ตรงนี้
                 # หาก SQS ส่ง LB Telegram มาและต้องการให้คุณตอบกลับ
                 telegram_type = received_telegram[32:34]
@@ -57,7 +59,8 @@ def receive_and_print_signals():
                     lb_response_telegram = lb_response_telegram[:TELEGRAM_LENGTH] # Ensure 128 chars
                     try:
                         client_socket.sendall(lb_response_telegram.encode('ascii'))
-                        print(f"Sent LB response: {lb_response_telegram.strip()}")
+                        now = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+                        print(f"{now} | Sent LB response: {lb_response_telegram.strip()}")
                     except Exception as e:
                         print(f"Error sending LB response: {e}")
                         is_connected = False
