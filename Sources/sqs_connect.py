@@ -1,9 +1,8 @@
 import socket
 import tkinter as tk
-from tkinter import simpledialog
-from fitsdll import fn_Handshake
 
-def send_fi_telegram(ip="192.168.1.20", port=51000):
+
+def send_fi_telegram(product_id, ip="192.168.1.20", port=51000):
     prefix = "PC STATION      PLC             "
     telegram_type = "FI0100"
     header = "0012"
@@ -19,15 +18,15 @@ def send_fi_telegram(ip="192.168.1.20", port=51000):
     return
 
 # CIN251230000
-root = tk.Tk()
-root.withdraw()
-root.attributes("-topmost", True)
+# root = tk.Tk()
+# root.withdraw()
+# root.attributes("-topmost", True)
 
-while True:
-    product_id = simpledialog.askstring("Scan Product ID", "Please scan product ID")
-    status_handshake = fn_Handshake("*", "IN230", product_id)
-    if status_handshake == True:
-        send_fi_telegram(product_id)
-        break
-    else: 
-        print(status_handshake)
+# while True:
+#     product_id = simpledialog.askstring("Scan Product ID", "Please scan product ID")
+#     status_handshake = fn_Handshake("*", "IN230", product_id)
+#     if status_handshake == True:
+#         send_fi_telegram(product_id)
+#         break
+#     else: 
+#         print(status_handshake)

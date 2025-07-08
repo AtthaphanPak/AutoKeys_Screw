@@ -14,6 +14,7 @@ class CAutoFITs_Screw():
     def __init__ (self):
         # Read parameters from config files
         self.MC = os.environ["COMPUTERNAME"]
+        self.MC = "CUS-2156-013"
         config = configparser.ConfigParser()
         main_files = "C:\Projects\Autokeys_Screw"
         config.read(os.path.join(main_files ,"Properties\config.ini"))
@@ -28,6 +29,8 @@ class CAutoFITs_Screw():
             print("Please check config.ini")
             quit()
 
+        self.bin_folder = os.path.join(os.path.dirname(self.path), "bin")
+        os.makedirs(self.bin_folder, exist_ok=True)
         self.serial = ""
 
     def findAllTorqueDatabaseFiles(self):
@@ -368,7 +371,7 @@ class CAutoFITs_Screw():
             try:
                 os.rename(file, New_ach)
             except Exception as error:
-                df_output = False 
+                df_output = pd.DataFrame() 
                 current_path = file
                 return  df_output, current_path, CompactPathName
             
@@ -391,7 +394,7 @@ class CAutoFITs_Screw():
             try:
                 os.rename(file, New_ach)
             except Exception as error:
-                df_output = False 
+                df_output = pd.DataFrame() 
                 current_path = file
                 return  df_output, current_path, CompactPathName
             isExist = os.path.exists(os.path.join(Corrupted_Files, os.path.basename(os.path.dirname(New_ach))))
@@ -407,7 +410,7 @@ class CAutoFITs_Screw():
                 if len(os.listdir(os.path.dirname(New_ach))) == 0: 
                     os.rmdir(os.path.dirname(New_ach))
                      
-            df_output = False
+            df_output = pd.DataFrame() 
             
         return df_output, current_path, CompactPathName
 
@@ -464,29 +467,59 @@ class CAutoFITs_Screw():
             return nok_df.tail(1).squeeze()
         
         return None
-    def scan_serial_window(self):
+    
+    def check_process_done(self, serial):
+        pattren = os.path.join(self.path, "*", f"{serial}_*.csv")
+        files = glob.glob(pattren)
+        if files:
+            file = max(files, key=os.path.getmtime)
+            print(file)
+            df = pd.read_csv(file)
+            if df["Unique ID"].astype(str).str.contains("Complete Process").any():
+                return file
+        
+        return None
+
+    def aggregateAllDataAndSaveToFile(self):
         root = tk.Tk()
         root.withdraw()
         root.attributes("-topmost", True)
 
         while True:
-            main_serial = simpledialog.askstring("Scann Main Serial", "Please Scan Main Serial")
-            if len(main_serial) == 12:
-                status_handshake = fn_Handshake("*", self.operation) 
-    def aggregateAllDataAndSaveToFile(self):
-        filesFound = CAutoFITs_Screw.findAllTorqueDatabaseFiles(self)
-        for file in filesFound:
+            while True:
+                main_serial = simpledialog.askstring("Scann Main Serial", "Please Scan Main Serial")
+                if len(main_serial) == 12:
+                    status_handshake = fn_Handshake("*", self.operation, main_serial) 
+                    if status_handshake == True:
+                        print("Sent Compeleted")
+                        # send_fi_telegram(main_serial)
+                        break
+                    else: 
+                        messagebox.showerror("Handshake Failed", status_handshake)
+                else:
+                    messagebox.showerror("Invaild Serial", "Serial must be 12 digit.")
+
+            while True:
+                time.sleep(1)
+                file = self.check_process_done(main_serial)
+                if file:
+                    print("Process finished")
+                    break
+                else:
+                    print("Wait process finish")
+        
             minedData, current_path, CompactPathName = CAutoFITs_Screw.openDatabaseFile(self, file)
-            if minedData == False or CompactPathName == "NG":
+            # print(minedData)
+            # print(CompactPathName)
+            if minedData.empty or CompactPathName == "NG":
                 continue
             if self.FITs.upper() == "ENABLE":
-                CAutoFITs_Screw.UploadDataToFITs(self,minedData, current_path, CompactPathName)
+                # CAutoFITs_Screw.UploadDataToFITs(self,minedData, current_path, CompactPathName)
+                print("Data has been uploaded")
+                print("reprocess")
 
-while True:
-    print("START")
-    minedData=CAutoFITs_Screw()
-    minedData.aggregateAllDataAndSaveToFile()
-    time_sec = 30
-    now = datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
-    print(f"{now}\tSleep:\t{time_sec}\tsecond")
-    time.sleep(time_sec)
+if __name__  == "__main__":
+    while True:
+        print("START")
+        minedData=CAutoFITs_Screw()
+        minedData.aggregateAllDataAndSaveToFile()
