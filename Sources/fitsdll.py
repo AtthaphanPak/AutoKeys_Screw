@@ -17,9 +17,9 @@ def fn_Handshake(model: str, operation : str, serial : str, revision="2.90"):
         if fn_handshake == "True":
             return True
         else:
-            return FitsDebugging()
+            return fn_handshake
     else:
-        return False
+        return fn_handshake
 
 def fn_Log(model: str, operation : str, parameters : str, values : str, revision="2.90"):
     list_parameters = {}

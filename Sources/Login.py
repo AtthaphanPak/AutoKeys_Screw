@@ -1,11 +1,17 @@
 import tkinter as tk
+from fitsdll import fn_Handshake
 
-def scan_main_serial_fullscreen():
+def scan_main_serial_fullscreen(operation, model= "*"):
     def on_submit():
         serial = entry.get().strip()
+
         if len(serial) == 12:
-            result.set(serial)
-            root.destroy()
+            status = fn_Handshake(model, operation, serial)
+            if status == True:
+                result.set(serial)
+                root.destroy()
+            else:
+                label_error.config(text=status)
         else:
             label_error.config(text="Serial ต้องมี 12 หลัก")
     root = tk.Tk()
@@ -28,5 +34,5 @@ def scan_main_serial_fullscreen():
     return result.get()
 
 # ตัวอย่างเรียกใช้งาน
-serial = scan_main_serial_fullscreen()
+serial = scan_main_serial_fullscreen("IN230CIN251230000")
 print("Main Serial:", serial)

@@ -1,6 +1,32 @@
 import socket
-import tkinter as tk
+import time
 
+def response_telegram(product_id="CIN251230000", ip="192.168.1.20", port=51000):
+    prefix = "PC STATION      PLC             "
+    telegram_type = "FI0100"
+    header = "0012"
+    telegram = f"{prefix}{telegram_type}{header}{product_id}"
+    telegram = telegram.ljust(128)
+
+    try:
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.timeout(5)
+            s.connect((ip, port))
+            s.sendall(telegram.encode())
+            print("✅ FI telegram sent to SQS3")
+
+            while True:
+                try:
+                    response = s.recv(128).decode().strip()
+                    print("📥 Response from SQS3:", response)
+                    if "DONE" in response.upper():
+                        print("completed")
+                        return response
+                except socket.timeout:
+                    pass
+    except Exception as e:
+        print(e)
+        return e
 
 def send_fi_telegram(product_id, ip="192.168.1.20", port=51000):
     prefix = "PC STATION      PLC             "
@@ -18,15 +44,5 @@ def send_fi_telegram(product_id, ip="192.168.1.20", port=51000):
     return
 
 # CIN251230000
-# root = tk.Tk()
-# root.withdraw()
-# root.attributes("-topmost", True)
-
-# while True:
-#     product_id = simpledialog.askstring("Scan Product ID", "Please scan product ID")
-#     status_handshake = fn_Handshake("*", "IN230", product_id)
-#     if status_handshake == True:
-#         send_fi_telegram(product_id)
-#         break
-#     else: 
-#         print(status_handshake)
+result = response_telegram("CIN251230000")
+print(result)

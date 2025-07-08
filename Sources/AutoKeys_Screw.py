@@ -9,6 +9,7 @@ import time
 
 from fitsdll import fn_Handshake, fn_Log
 from sqs_connect import send_fi_telegram
+from GUI.Login import scan_main_serial_fullscreen
 
 class CAutoFITs_Screw():
     def __init__ (self):
@@ -492,7 +493,7 @@ class CAutoFITs_Screw():
                     status_handshake = fn_Handshake("*", self.operation, main_serial) 
                     if status_handshake == True:
                         print("Sent Compeleted")
-                        # send_fi_telegram(main_serial)
+                        send_fi_telegram(main_serial)
                         break
                     else: 
                         messagebox.showerror("Handshake Failed", status_handshake)
@@ -517,7 +518,7 @@ class CAutoFITs_Screw():
                 # CAutoFITs_Screw.UploadDataToFITs(self,minedData, current_path, CompactPathName)
                 print("Data has been uploaded")
                 print("reprocess")
-
+                
 if __name__  == "__main__":
     while True:
         print("START")
