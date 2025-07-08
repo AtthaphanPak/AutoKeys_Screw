@@ -9,7 +9,7 @@ import time
 
 from fitsdll import fn_Handshake, fn_Log
 from sqs_connect import send_fi_telegram
-from GUI.Login import scan_main_serial_fullscreen
+from Sources.Login import scan_main_serial_fullscreen
 
 class CAutoFITs_Screw():
     def __init__ (self):
@@ -518,7 +518,7 @@ class CAutoFITs_Screw():
                 # CAutoFITs_Screw.UploadDataToFITs(self,minedData, current_path, CompactPathName)
                 print("Data has been uploaded")
                 print("reprocess")
-                
+
 if __name__  == "__main__":
     while True:
         print("START")

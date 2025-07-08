@@ -19,7 +19,7 @@ def fn_Handshake(model: str, operation : str, serial : str, revision="2.90"):
         else:
             return fn_handshake
     else:
-        return fn_handshake
+        return fn_initDB
 
 def fn_Log(model: str, operation : str, parameters : str, values : str, revision="2.90"):
     list_parameters = {}

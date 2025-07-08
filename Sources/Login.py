@@ -19,7 +19,6 @@ def scan_main_serial_fullscreen(operation, model= "*"):
     # ✅ ทำให้เต็มจอ + บนสุด + ไม่ให้ปิด
     root.attributes("-fullscreen", True)
     root.attributes("-topmost", True)
-    root.protocol("WM_DELETE_WINDOW", lambda: None)  # ห้ามปิดด้วย X
     result = tk.StringVar()
     frame = tk.Frame(root)
     frame.place(relx=0.5, rely=0.5, anchor="center")
@@ -36,3 +35,4 @@ def scan_main_serial_fullscreen(operation, model= "*"):
 # ตัวอย่างเรียกใช้งาน
 serial = scan_main_serial_fullscreen("IN230CIN251230000")
 print("Main Serial:", serial)
+      

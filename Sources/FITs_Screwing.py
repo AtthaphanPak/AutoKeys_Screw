@@ -427,22 +427,14 @@ class CAutoFITs_Screw():
         serial = self.serial
         parameters = ";".join(dataFrame.columns.tolist())
         values = ";".join(dataFrame.values.tolist()[0])
-        Handshake_status = fn_Handshake(model, operation, serial)
-        
-        if Handshake_status is True:
-            fn_log = fn_Log(model, operation, parameters, values)
-            if fn_log == True:
-                print(f"{serial} has been uploaded TO FITS {operation}.")
-            else:   
-                print('FITs Log Fail:\t', f'{fn_log}')
-                messagebox.showerror('FITs Log Fail', f'Serial {serial}\n{fn_log}')
-                CAutoFITs_Screw.move_folder(os.path.dirname(current_path), os.path.join(FITS_Log_Fail, os.path.basename(os.path.dirname(current_path))))
-        else:
-                print('FITs Log Fail:\t', f'{Handshake_status}')
-                messagebox.showerror('FITs Handcheck Fail', f'Serial {serial}\n{Handshake_status}')
-                rename =  os.path.join(os.path.dirname(CompactPathName) ,"Fail_HandCheck_" + os.path.basename(CompactPathName))
-                os.rename(CompactPathName, rename)
-                CAutoFITs_Screw.move_folder(os.path.dirname(current_path), os.path.join(FITS_Handcheck_Fail, os.path.basename(os.path.dirname(current_path))))
+
+        fn_log = fn_Log(model, operation, parameters, values)
+        if fn_log == True:
+            print(f"{serial} has been uploaded TO FITS {operation}.")
+        else:   
+            print('FITs Log Fail:\t', f'{fn_log}')
+            messagebox.showerror('FITs Log Fail', f'Serial {serial}\n{fn_log}')
+            CAutoFITs_Screw.move_folder(os.path.dirname(current_path), os.path.join(FITS_Log_Fail, os.path.basename(os.path.dirname(current_path))))
 
     def get_last_valid_row(df, uid):
         ok_df = df.loc[
@@ -464,15 +456,15 @@ class CAutoFITs_Screw():
             return nok_df.tail(1).squeeze()
         
         return None
+    
     def scan_serial_window(self):
-        root = tk.Tk()
-        root.withdraw()
-        root.attributes("-topmost", True)
+        main_sn, sub_sn1, sub_sn2 = scan_serials_gui()
+        if not main_sn:
+            messagebox.showinfo("Exit Program", "User Canceled")
+            quit()
+        else:
+            fn_Handshake()
 
-        while True:
-            main_serial = simpledialog.askstring("Scann Main Serial", "Please Scan Main Serial")
-            if len(main_serial) == 12:
-                status_handshake = fn_Handshake("*", self.operation) 
     def aggregateAllDataAndSaveToFile(self):
         filesFound = CAutoFITs_Screw.findAllTorqueDatabaseFiles(self)
         for file in filesFound:
@@ -480,7 +472,7 @@ class CAutoFITs_Screw():
             if minedData == False or CompactPathName == "NG":
                 continue
             if self.FITs.upper() == "ENABLE":
-                CAutoFITs_Screw.UploadDataToFITs(self,minedData, current_path, CompactPathName)
+                CAutoFITs_Screw.UploadDataToFITs(self, minedData, current_path, CompactPathName)
 
 while True:
     print("START")
