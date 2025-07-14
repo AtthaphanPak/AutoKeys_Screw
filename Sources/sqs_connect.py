@@ -27,21 +27,38 @@ def response_telegram(product_id="CIN251230000", ip="192.168.1.20", port=51000):
         print(e)
         return e
 
-def send_fi_telegram(product_id, ip="192.168.1.20", port=51000):
+def send_fi_telegram(product_id, ip="192.168.1.20", port=51000, retries=3):
     prefix = "PC STATION      PLC             "
     telegram_type = "FI0100"
     header = "0012"
     telegram = f"{prefix}{telegram_type}{header}{product_id}"
     telegram = telegram.ljust(128)
     # print(telegram)
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.connect((ip, port))
-        s.sendall(telegram.encode())
-        print("✅ FI telegram sent to SQS3")
-        response = s.recv(128).decode().strip()
-        print("📥 Response from SQS3:", response)
-    return
+
+    for attempt in range(1, retries +1):
+        print(f"Attempt {attempt}/{retries}")
+
+        try:
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                s.settimeout(3)
+                s.connect((ip, port))
+                s.settimeout(None)
+
+                s.sendall(telegram.encode())
+                print("✅ FI telegram sent to SQS3")
+
+                response = s.recv(128).decode().strip()
+                print("📥 Response from SQS3:", response)
+                return response
+        except socket.timeout:
+            print("Timeout occurred, retrying... ")
+        except Exception as e:
+            print(e)
+            return e
+        time.sleep(1)
+
+    return False
 
 # CIN251230000
-result = response_telegram("CIN251230001")
-print(result)
+# result = send_fi_telegram("CIN251230001")
+# print(result)

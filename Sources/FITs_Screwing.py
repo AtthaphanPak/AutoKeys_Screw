@@ -456,14 +456,6 @@ class CAutoFITs_Screw():
             return nok_df.tail(1).squeeze()
         
         return None
-    
-    def scan_serial_window(self):
-        main_sn, sub_sn1, sub_sn2 = scan_serials_gui()
-        if not main_sn:
-            messagebox.showinfo("Exit Program", "User Canceled")
-            quit()
-        else:
-            fn_Handshake()
 
     def aggregateAllDataAndSaveToFile(self):
         filesFound = CAutoFITs_Screw.findAllTorqueDatabaseFiles(self)

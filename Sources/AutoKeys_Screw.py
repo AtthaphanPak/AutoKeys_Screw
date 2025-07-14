@@ -1,7 +1,5 @@
 # For BU INNOVIZ
 from datetime import datetime
-from tkinter import messagebox, simpledialog
-import tkinter as tk
 import pandas as pd
 import glob, os, shutil
 import configparser
@@ -9,7 +7,7 @@ import time
 
 from fitsdll import fn_Handshake, fn_Log
 from sqs_connect import send_fi_telegram
-from Sources.Login import scan_main_serial_fullscreen
+from window import scan_main_serial_fullscreen, scan_sub_serial_fullscreen, message_popup
 
 class CAutoFITs_Screw():
     def __init__ (self):
@@ -64,10 +62,6 @@ class CAutoFITs_Screw():
             return input    
             
     def openDatabaseFile(self, file):
-        root = tk.Tk()
-        root.withdraw()
-        root.attributes("-topmost", True)
-
         now = datetime.now().strftime("%Y-%m-%d %H_%M_%S")
         # Read file
         df = pd.read_csv(file)
@@ -78,7 +72,6 @@ class CAutoFITs_Screw():
         except Exception as error:
             Operator = "519723"
         # print("EN:\t", Operator)
-        station = df["Station"][0]
 
         status = df["Unique ID"].str.contains("Complete Process", case=False, na=False).any()
         if not status:
@@ -104,7 +97,7 @@ class CAutoFITs_Screw():
                 data = {
                     "EN": Operator,
                     "Operation": self.operation, 
-                    "SN unit": self.serial,
+                    "SN": "",
                     "BN Screw": CAutoFITs_Screw.check_pd_filter(BN_Screw),
                     "Program Name": "Screwing MB to Top cover",
                     "Fixture jig": self.fixture,
@@ -153,7 +146,7 @@ class CAutoFITs_Screw():
                 print(f"{self.operation} file >> {file}")
                 print(error)
                 
-                messagebox.showerror("Process Message", f"FAIL to Generate Compact log file: {file}") 
+                message_popup(3, "Process Message", f"FAIL to Generate Compact log file: {file}") 
                 convertstatus = False
             
         # For operation Detector to OB
@@ -168,7 +161,7 @@ class CAutoFITs_Screw():
                 data = {
                     "EN": Operator,     
                     "Operation": self.operation, 
-                    "SN OB": self.serial, 
+                    "SN": "", 
                     "BN Screw": CAutoFITs_Screw.check_pd_filter(BN_Screw),
                     "Program Name": "Detector to OB",
                     "Fixture jig": self.fixture,
@@ -202,7 +195,7 @@ class CAutoFITs_Screw():
                 print(f"{self.operation} file >> {file}")
                 print(error)
                 
-                messagebox.showerror("Process Message", f"FAIL to Generate Compact log file: {file}") 
+                message_popup(3, "Process Message", f"FAIL to Generate Compact log file: {file}") 
                 convertstatus = False
 
         # For operation Interface connector to Top  
@@ -219,10 +212,10 @@ class CAutoFITs_Screw():
                 IC2TC_05 = df.loc[(df["Unique ID"] == "IC2TC.05") & (df["Status"] == "OK") & (df["Value"] == "OK"), ["Actual Torque", "Actual Angle", "Status"]].tail(1).squeeze()
                 IC2TC_06 = df.loc[(df["Unique ID"] == "IC2TC.06") & (df["Status"] == "OK") & (df["Value"] == "OK"), ["Actual Torque", "Actual Angle", "Status"]].tail(1).squeeze()
                 
-                data = {
-                    "SN unit": self.serial,  
+                data = { 
                     "EN": Operator, 
                     "Operation": self.operation, 
+                    "SN": "", 
                     "Interface PBA SN": CAutoFITs_Screw.check_pd_filter(PBA_SN),
                     "BN Screw": CAutoFITs_Screw.check_pd_filter(BN_Screw),   
                     "Program Name": "Interface connector to Top",
@@ -266,7 +259,7 @@ class CAutoFITs_Screw():
                 print(f"{self.operation} file >> {file}")
                 print(error)
                 
-                messagebox.showerror("Process Message", f"FAIL to Generate Compact log file: {file}") 
+                message_popup(3, "Process Message", f"FAIL to Generate Compact log file: {file}") 
                 
                 convertstatus = False
 
@@ -285,10 +278,10 @@ class CAutoFITs_Screw():
                 MB2TC_07 = df.loc[(df["Unique ID"] == "MB2TC.07") & (df["Status"] == "OK") & (df["Value"] == "OK"), ["Actual Torque", "Actual Angle", "Status"]].tail(1).squeeze()
                 MB2TC_08 = df.loc[(df["Unique ID"] == "MB2TC.08") & (df["Status"] == "OK") & (df["Value"] == "OK"), ["Actual Torque", "Actual Angle", "Status"]].tail(1).squeeze()
                 
-                data = {
-                    "SN unit": self.serial,  
+                data = {  
                     "EN": Operator, 
                     "Operation": self.operation, 
+                    "SN unit": "",
                     "BN Top cover": CAutoFITs_Screw.check_pd_filter(Top_cover),
                     "BN Screw": CAutoFITs_Screw.check_pd_filter(BN_Screw),   
                     "Program Name": "Screwing Cover Screws Type1",
@@ -339,7 +332,7 @@ class CAutoFITs_Screw():
                 print(f"{self.operation} file >> {file}")
                 print(error)
                 
-                messagebox.showerror("Process Message", f"FAIL to Generate Compact log file: {file}") 
+                message_popup(3, "Process Message", f"FAIL to Generate Compact log file: {file}") 
                 
                 convertstatus = False
 
@@ -416,10 +409,6 @@ class CAutoFITs_Screw():
         return df_output, current_path, CompactPathName
 
     def UploadDataToFITs(self, dataFrame, current_path, CompactPathName):
-        root = tk.Tk()
-        root.withdraw()
-        root.attributes("-topmost", True)
-
         ## Create folder FITS_Log_Fail && FITS_Handcheck_Fail
         FITS_Log_Fail = os.path.join(os.path.dirname(os.path.dirname(current_path)), "FITS_Log_Fail")
         os.makedirs(FITS_Log_Fail, exist_ok=True)
@@ -439,11 +428,11 @@ class CAutoFITs_Screw():
                 print(f"{serial} has been uploaded TO FITS {operation}.")
             else:   
                 print('FITs Log Fail:\t', f'{fn_log}')
-                messagebox.showerror('FITs Log Fail', f'Serial {serial}\n{fn_log}')
+                message_popup(3, 'FITs Log Fail', f'Serial {serial}\n{fn_log}')
                 CAutoFITs_Screw.move_folder(os.path.dirname(current_path), os.path.join(FITS_Log_Fail, os.path.basename(os.path.dirname(current_path))))
         else:
                 print('FITs Log Fail:\t', f'{Handshake_status}')
-                messagebox.showerror('FITs Handcheck Fail', f'Serial {serial}\n{Handshake_status}')
+                message_popup(3, 'FITs Handcheck Fail', f'Serial {serial}\n{Handshake_status}')
                 rename =  os.path.join(os.path.dirname(CompactPathName) ,"Fail_HandCheck_" + os.path.basename(CompactPathName))
                 os.rename(CompactPathName, rename)
                 CAutoFITs_Screw.move_folder(os.path.dirname(current_path), os.path.join(FITS_Handcheck_Fail, os.path.basename(os.path.dirname(current_path))))
@@ -482,24 +471,14 @@ class CAutoFITs_Screw():
         return None
 
     def aggregateAllDataAndSaveToFile(self):
-        root = tk.Tk()
-        root.withdraw()
-        root.attributes("-topmost", True)
-
         while True:
-            while True:
-                main_serial = simpledialog.askstring("Scann Main Serial", "Please Scan Main Serial")
-                if len(main_serial) == 12:
-                    status_handshake = fn_Handshake("*", self.operation, main_serial) 
-                    if status_handshake == True:
-                        print("Sent Compeleted")
-                        send_fi_telegram(main_serial)
-                        break
-                    else: 
-                        messagebox.showerror("Handshake Failed", status_handshake)
-                else:
-                    messagebox.showerror("Invaild Serial", "Serial must be 12 digit.")
-
+            main_serial = scan_main_serial_fullscreen(self.operation)
+            print(main_serial)
+            sub_sn1, sub_sn2 = scan_sub_serial_fullscreen()
+            callback = send_fi_telegram(main_serial)
+            if callback == False:
+                message_popup(3, "SQS Connect error", "Can't connect SQS Software, Please contract engineer")
+                quit()
             while True:
                 time.sleep(1)
                 file = self.check_process_done(main_serial)
@@ -515,6 +494,8 @@ class CAutoFITs_Screw():
             if minedData.empty or CompactPathName == "NG":
                 continue
             if self.FITs.upper() == "ENABLE":
+                minedData["SN"] = main_serial
+
                 # CAutoFITs_Screw.UploadDataToFITs(self,minedData, current_path, CompactPathName)
                 print("Data has been uploaded")
                 print("reprocess")
