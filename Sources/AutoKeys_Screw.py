@@ -7,7 +7,7 @@ import time
 
 from fitsdll import fn_Handshake, fn_Log
 from sqs_connect import send_fi_telegram
-from window import scan_main_serial_fullscreen, scan_sub_serial_fullscreen, message_popup
+from window import scan_main_serial, scan_sub_serial, message_popup
 
 class CAutoFITs_Screw():
     def __init__ (self):
@@ -472,9 +472,9 @@ class CAutoFITs_Screw():
 
     def aggregateAllDataAndSaveToFile(self):
         while True:
-            main_serial = scan_main_serial_fullscreen(self.operation)
+            main_serial = scan_main_serial(self.operation)
             print(main_serial)
-            sub_sn1, sub_sn2 = scan_sub_serial_fullscreen()
+            sub_sn = scan_sub_serial(2)
             callback = send_fi_telegram(main_serial)
             if callback == False:
                 message_popup(3, "SQS Connect error", "Can't connect SQS Software, Please contract engineer")
@@ -495,7 +495,7 @@ class CAutoFITs_Screw():
                 continue
             if self.FITs.upper() == "ENABLE":
                 minedData["SN"] = main_serial
-
+                
                 # CAutoFITs_Screw.UploadDataToFITs(self,minedData, current_path, CompactPathName)
                 print("Data has been uploaded")
                 print("reprocess")

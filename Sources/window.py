@@ -3,7 +3,7 @@ import tkinter as tk
 from tkinter import messagebox
 from fitsdll import fn_Handshake
 
-def scan_main_serial_fullscreen(operation, model= "*"):
+def scan_main_serial(operation, model= "*"):
     def on_submit():
         serial = entry.get().strip()
 
@@ -42,61 +42,43 @@ def scan_main_serial_fullscreen(operation, model= "*"):
 
     return result.get()
 
-def scan_sub_serial_fullscreen(serial_length=12):
+def scan_sub_serial(num_serials=2):
     def on_submit():
-        sub1 = entry1.get().strip()
-        sub2 = entry2.get().strip()
-        if len(sub1) == serial_length and len(sub2) == serial_length:
-            result.set((sub1, sub2))
+        entries_values = [e.get().strip() for e in entry_list]
+        if all(val for val in entries_values):
+            result.set(entries_values)
             root.destroy()
         else:
-            label_error.config(
-                text=f"both Sub-Serial must be {serial_length} digit"
-            )
+            label_error.config(text="Please fill all Sub Serial")
     def on_quit():
-        print("👋 ออกจากหน้าสแกน Sub Serial")
-        root.destroy()
-        os._exit(0)
-
+        print("Exit Sub Serial")
+        root.quit()
     root = tk.Tk()
     root.title("Scan Sub Serials")
     root.attributes("-fullscreen", True)
     root.attributes("-topmost", True)
     root.protocol("WM_DELETE_WINDOW", lambda: None)
     result = tk.StringVar()
+    entry_list = []
     frame = tk.Frame(root)
     frame.place(relx=0.5, rely=0.5, anchor="center")
-    tk.Label(frame, text="Please scan Sub-Serials", font=("Helvetica", 32)).pack(pady=20)
-    # ✅ แถว Sub Serial 1
-    row1 = tk.Frame(frame)
-    row1.pack(pady=10)
-    tk.Label(row1, text="Sub Serial 1:", font=("Helvetica", 28)).pack(side="left", padx=10)
-    entry1 = tk.Entry(row1, font=("Courier", 36), justify="center", width=20)
-    entry1.pack(side="left")
-    entry1.focus()
-    # ✅ แถว Sub Serial 2
-    row2 = tk.Frame(frame)
-    row2.pack(pady=10)
-    tk.Label(row2, text="Sub Serial 2:", font=("Helvetica", 28)).pack(side="left", padx=10)
-    entry2 = tk.Entry(row2, font=("Courier", 36), justify="center", width=20)
-    entry2.pack(side="left")
+    tk.Label(frame, text=f"Please scan Sub Serial", font=("Helvetica", 32)).pack(pady=20)
+    for i in range(num_serials):
+        row = tk.Frame(frame)
+        row.pack(pady=10)
+        tk.Label(row, text=f"Sub Serial {i + 1}:", font=("Helvetica", 28)).pack(side="left", padx=10)
+        entry = tk.Entry(row, font=("Courier", 36), justify="center", width=20)
+        entry.pack(side="left")
+        if i == 0:
+            entry.focus()
+        entry_list.append(entry)
     label_error = tk.Label(frame, text="", font=("Helvetica", 20), fg="red")
     label_error.pack()
-    # ✅ ปุ่มกด
     button_frame = tk.Frame(frame)
     button_frame.pack(pady=30)
     tk.Button(button_frame, text="Apply", font=("Helvetica", 24), width=10, command=on_submit).pack(side="left", padx=20)
-    tk.Button(button_frame, text="cancal", font=("Helvetica", 24), width=10, command=on_quit).pack(side="right", padx=20)
+    tk.Button(button_frame, text="Cancal", font=("Helvetica", 24), width=10, command=on_quit).pack(side="right", padx=20)
     root.mainloop()
     return result.get()
 
-def message_popup(type, header, message):
-    root = tk.Tk()
-    root.withdraw()
-    root.attributes("-topmost", True)
-    if type == 1:
-        messagebox.showinfo(header, message)
-    if type == 2:
-        messagebox.showwarning(header, message)
-    if type == 3:
-        messagebox.showerror(header, message)
+print(scan_sub_serial(2)[1])
