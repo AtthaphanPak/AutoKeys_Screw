@@ -24,6 +24,7 @@ class CAutoFITs_Screw():
             self.model = config[self.MC].get("model", "")
             self.operation = config[self.MC].get("operation", "")
             self.fixture = config[self.MC].get("fixture", "")
+            self.sub = config[self.MC].get("sub", "").split(",")
         except Exception as error:
             print("Please check config.ini")
             quit()
@@ -61,12 +62,12 @@ class CAutoFITs_Screw():
         else:
             return input    
             
-    def openDatabaseFile(self, file):
+    def openDatabaseFile(self, file, serial, sub_sn):
         now = datetime.now().strftime("%Y-%m-%d %H_%M_%S")
         # Read file
         df = pd.read_csv(file)
         # print("PAth file:\t", file)
-        self.serial = df["Product Id"][0]
+        self.serial = serial
         try:
             Operator = str(int(df["Operator"][df["Operator"].first_valid_index()]))
         except Exception as error:
@@ -84,7 +85,8 @@ class CAutoFITs_Screw():
         # For operation MB to Top cover
         if self.operation == "IN230":
             try:
-                BN_Screw = df.loc[(df["Unique ID"] == "SCAN SERIAL MB") & (df["Status"] == "OK"), "Value"].tail(1).squeeze()
+                # BN_Screw = df.loc[(df["Unique ID"] == "SCAN SERIAL MB") & (df["Status"] == "OK"), "Value"].tail(1).squeeze()
+                # BN_Screw = sub_sn[0]
                 MB2TC_01 = CAutoFITs_Screw.get_last_valid_row(df, "MB2TC.01")
                 MB2TC_02 = CAutoFITs_Screw.get_last_valid_row(df, "MB2TC.02")
                 MB2TC_03 = CAutoFITs_Screw.get_last_valid_row(df, "MB2TC.03")
@@ -98,7 +100,7 @@ class CAutoFITs_Screw():
                     "EN": Operator,
                     "Operation": self.operation, 
                     "SN": "",
-                    "BN Screw": CAutoFITs_Screw.check_pd_filter(BN_Screw),
+                    "BN Screw": sub_sn[0],
                     "Program Name": "Screwing MB to Top cover",
                     "Fixture jig": self.fixture,
                     "Torque_1": CAutoFITs_Screw.check_pd_filter(MB2TC_01["Actual Torque"]),
@@ -162,7 +164,7 @@ class CAutoFITs_Screw():
                     "EN": Operator,     
                     "Operation": self.operation, 
                     "SN": "", 
-                    "BN Screw": CAutoFITs_Screw.check_pd_filter(BN_Screw),
+                    "BN Screw": sub_sn[0],
                     "Program Name": "Detector to OB",
                     "Fixture jig": self.fixture,
                     "Torque_1": CAutoFITs_Screw.check_pd_filter(DB2OB_01["Actual Torque"]),
@@ -216,8 +218,8 @@ class CAutoFITs_Screw():
                     "EN": Operator, 
                     "Operation": self.operation, 
                     "SN": "", 
-                    "Interface PBA SN": CAutoFITs_Screw.check_pd_filter(PBA_SN),
-                    "BN Screw": CAutoFITs_Screw.check_pd_filter(BN_Screw),   
+                    "Interface PBA SN": sub_sn[1],
+                    "BN Screw": sub_sn[0],
                     "Program Name": "Interface connector to Top",
                     "Fixture jig": self.fixture,
                     "Torque_1": CAutoFITs_Screw.check_pd_filter(IC2TC_01["Actual Torque"]),
@@ -473,8 +475,7 @@ class CAutoFITs_Screw():
     def aggregateAllDataAndSaveToFile(self):
         while True:
             main_serial = scan_main_serial(self.operation)
-            print(main_serial)
-            sub_sn = scan_sub_serial(2)
+            sub_sn = scan_sub_serial(self.sub)
             callback = send_fi_telegram(main_serial)
             if callback == False:
                 message_popup(3, "SQS Connect error", "Can't connect SQS Software, Please contract engineer")
@@ -488,7 +489,7 @@ class CAutoFITs_Screw():
                 else:
                     print("Wait process finish")
         
-            minedData, current_path, CompactPathName = CAutoFITs_Screw.openDatabaseFile(self, file)
+            minedData, current_path, CompactPathName = CAutoFITs_Screw.openDatabaseFile(self, file, main_serial, sub_sn)
             # print(minedData)
             # print(CompactPathName)
             if minedData.empty or CompactPathName == "NG":
