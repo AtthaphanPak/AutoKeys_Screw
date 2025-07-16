@@ -28,7 +28,7 @@ def scan_main_serial(operation, model= "*"):
     result = tk.StringVar()
     frame = tk.Frame(root)
     frame.place(relx=0.5, rely=0.5, anchor="center")
-    tk.Label(frame, text="Please scan Main Serial (12 Digit):", font=("Helvetica", 32)).pack(pady=20)
+    tk.Label(frame, text=f"Operation {operation}\nPlease scan Main Serial (12 Digit):", font=("Helvetica", 32)).pack(pady=20)
     entry = tk.Entry(frame, font=("Courier", 36), justify="center")
     entry.pack(pady=20)
     entry.focus()
@@ -94,3 +94,4 @@ def message_popup(type, header, message):
         messagebox.showerror(header, message)
 
 # print(scan_sub_serial(["BN Screw"]))
+# scan_main_serial("IN700")

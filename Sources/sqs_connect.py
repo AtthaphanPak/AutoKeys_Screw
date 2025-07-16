@@ -1,6 +1,5 @@
 import socket
 import time
-import re
 from datetime import datetime
 
 def response_telegram(product_id="CIN251230000", ip="192.168.1.20", port=51000):
@@ -60,5 +59,5 @@ def send_fi_telegram(product_id, ip="192.168.1.20", port=51000, retries=3):
     return False
 
 # CIN251230000
-# result = send_fi_telegram("CIN251230001")
+# result = send_fi_telegram("CIN251700000")
 # print(result)

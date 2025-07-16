@@ -4,6 +4,7 @@ import pandas as pd
 import glob, os, shutil
 import configparser
 import time
+import tempfile
 
 from fitsdll import fn_Handshake, fn_Log
 from sqs_connect import send_fi_telegram
@@ -13,7 +14,6 @@ class CAutoFITs_Screw():
     def __init__ (self):
         # Read parameters from config files
         self.MC = os.environ["COMPUTERNAME"]
-        self.MC = "CUS-2156-013"
         config = configparser.ConfigParser()
         main_files = "C:\Projects\Autokeys_Screw"
         config.read(os.path.join(main_files ,"Properties\config.ini"))
@@ -463,20 +463,43 @@ class CAutoFITs_Screw():
     def check_process_done(self):
         pattren = os.path.join(self.path, "*", f"{self.serial}_*.csv")
         files = glob.glob(pattren)
-        if files:
-            file = max(files, key=os.path.getmtime)
-            print(file)
+        if not files:
+            return None
+        file = max(file, key=os.path.getatime)
+        temp_path =os.path.join(tempfile.gettempdir(), "log_temp.csv")
+
+        try:
+            shutil.copy2(file, temp_path)
             df = pd.read_csv(file)
-            if df["Unique ID"].astype(str).str.contains("Complete Process").any():
-                return file
-        
-        return None
+
+            if "Unique ID" in df.columns:
+                if df["Unique ID"].astype(str).str.contains("Complete Process").any():
+                    return file
+                else:
+                    return None
+            else:
+                raise ValueError("Missing 'Unique ID' column.")
+            
+        except PermissionError:
+            return None
+        except Exception as e:
+            message_popup(3, "Read csv Error", f"Error file\n{file}\n{e}")
+            return None
+        finally:
+            if os.path.exists(temp_path):
+                try:
+                    os.remove(temp_path)
+                except Exception as e:
+                    print(e)
 
     def clearlog(self):
         for item in os.listdir(self.path):
             source_path = os.path.join(self.path, item)
+            basename = os.path.basename(source_path) + datetime.now().strftime("%Y-%m-%d %H_%M_%S")
+            new_source_path = os.path.join(os.path.dirname(source_path), basename)
+            os.rename(source_path, new_source_path)
             destination_path = os.path.join(self.bin_folder, item)
-            shutil.move(source_path, destination_path)
+            shutil.move(new_source_path, destination_path)
 
     def aggregateAllDataAndSaveToFile(self):
         while True:
