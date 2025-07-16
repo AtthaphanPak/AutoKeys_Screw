@@ -32,6 +32,7 @@ class CAutoFITs_Screw():
         self.bin_folder = os.path.join(os.path.dirname(self.path), "bin")
         os.makedirs(self.bin_folder, exist_ok=True)
         self.serial = ""
+        self.sub_sn = ""
 
     def findAllTorqueDatabaseFiles(self):
         allfiles = []
@@ -62,16 +63,15 @@ class CAutoFITs_Screw():
         else:
             return input    
             
-    def openDatabaseFile(self, file, serial, sub_sn):
+    def openDatabaseFile(self, file):
         now = datetime.now().strftime("%Y-%m-%d %H_%M_%S")
         # Read file
         df = pd.read_csv(file)
         # print("PAth file:\t", file)
-        self.serial = serial
         try:
             Operator = str(int(df["Operator"][df["Operator"].first_valid_index()]))
         except Exception as error:
-            Operator = "519723"
+            Operator = "524161"
         # print("EN:\t", Operator)
 
         status = df["Unique ID"].str.contains("Complete Process", case=False, na=False).any()
@@ -99,8 +99,8 @@ class CAutoFITs_Screw():
                 data = {
                     "EN": Operator,
                     "Operation": self.operation, 
-                    "SN": "",
-                    "BN Screw": sub_sn[0],
+                    "SN": self.serial,
+                    "BN Screw": self.sub_sn[0],
                     "Program Name": "Screwing MB to Top cover",
                     "Fixture jig": self.fixture,
                     "Torque_1": CAutoFITs_Screw.check_pd_filter(MB2TC_01["Actual Torque"]),
@@ -155,7 +155,7 @@ class CAutoFITs_Screw():
         elif self.operation == "OB120":
             # print("operation:\t", operation)
             try:
-                BN_Screw = df.loc[(df["Unique ID"] == "Screw Material") & (df["Status"] == "OK"), "Value"].tail(1).squeeze()
+                # BN_Screw = df.loc[(df["Unique ID"] == "Screw Material") & (df["Status"] == "OK"), "Value"].tail(1).squeeze()
                 DB2OB_01 = df.loc[(df["Unique ID"] == "DB2OB.01") & (df["Status"] == "OK") & (df["Value"] == "OK"), ["Actual Torque", "Actual Angle", "Status"]].tail(1).squeeze()
                 DB2OB_02 = df.loc[(df["Unique ID"] == "DB2OB.02") & (df["Status"] == "OK") & (df["Value"] == "OK"), ["Actual Torque", "Actual Angle", "Status"]].tail(1).squeeze()
                 DB2OB_03 = df.loc[(df["Unique ID"] == "DB2OB.03") & (df["Status"] == "OK") & (df["Value"] == "OK"), ["Actual Torque", "Actual Angle", "Status"]].tail(1).squeeze()
@@ -163,8 +163,8 @@ class CAutoFITs_Screw():
                 data = {
                     "EN": Operator,     
                     "Operation": self.operation, 
-                    "SN": "", 
-                    "BN Screw": sub_sn[0],
+                    "SN": self.serial, 
+                    "BN Screw": self.sub_sn[0],
                     "Program Name": "Detector to OB",
                     "Fixture jig": self.fixture,
                     "Torque_1": CAutoFITs_Screw.check_pd_filter(DB2OB_01["Actual Torque"]),
@@ -204,8 +204,8 @@ class CAutoFITs_Screw():
         elif self.operation ==  "IN240":
             # print("operation:\t", operation)
             try:
-                PBA_SN = df.loc[(df["Unique ID"] == "SCAN PCBA") & (df["Status"] == "OK"), "Value"].tail(1).squeeze()
-                BN_Screw = df.loc[(df["Unique ID"] == "SCAN SERIAL MB") & (df["Status"] == "OK"), "Value"].tail(1).squeeze()
+                # PBA_SN = df.loc[(df["Unique ID"] == "SCAN PCBA") & (df["Status"] == "OK"), "Value"].tail(1).squeeze()
+                # BN_Screw = df.loc[(df["Unique ID"] == "SCAN SERIAL MB") & (df["Status"] == "OK"), "Value"].tail(1).squeeze()
                 IC2TC_01 = df.loc[(df["Unique ID"] == "IC2TC.01") & (df["Status"] == "OK") & (df["Value"] == "OK"), ["Actual Torque", "Actual Angle", "Status"]].tail(1).squeeze()
                 IC2TC_02 = df.loc[(df["Unique ID"] == "IC2TC.02") & (df["Status"] == "OK") & (df["Value"] == "OK"), ["Actual Torque", "Actual Angle", "Status"]].tail(1).squeeze()
                 IC2TC_03 = df.loc[(df["Unique ID"] == "IC2TC.03") & (df["Status"] == "OK") & (df["Value"] == "OK"), ["Actual Torque", "Actual Angle", "Status"]].tail(1).squeeze()
@@ -217,9 +217,9 @@ class CAutoFITs_Screw():
                 data = { 
                     "EN": Operator, 
                     "Operation": self.operation, 
-                    "SN": "", 
-                    "Interface PBA SN": sub_sn[1],
-                    "BN Screw": sub_sn[0],
+                    "SN": self.serial, 
+                    "Interface PBA SN": self.sub_sn[1],
+                    "BN Screw": self.sub_sn[0],
                     "Program Name": "Interface connector to Top",
                     "Fixture jig": self.fixture,
                     "Torque_1": CAutoFITs_Screw.check_pd_filter(IC2TC_01["Actual Torque"]),
@@ -268,8 +268,8 @@ class CAutoFITs_Screw():
         elif self.operation == "IN700":
             # print("operation:\t", operation)
             try:
-                Top_cover = df.loc[(df["Unique ID"] == "SCAN SERIAL MB") & (df["Status"] == "OK"), "Value"].tail(1).squeeze()
-                BN_Screw = df.loc[(df["Unique ID"] == "SCREW Material") & (df["Status"] == "OK"), "Value"].tail(1).squeeze()
+                # Top_cover = df.loc[(df["Unique ID"] == "SCAN SERIAL MB") & (df["Status"] == "OK"), "Value"].tail(1).squeeze()
+                # BN_Screw = df.loc[(df["Unique ID"] == "SCREW Material") & (df["Status"] == "OK"), "Value"].tail(1).squeeze()
                 MB2TC_01 = df.loc[(df["Unique ID"] == "MB2TC.01") & (df["Status"] == "OK") & (df["Value"] == "OK"), ["Actual Torque", "Actual Angle", "Status"]].tail(1).squeeze()
                 MB2TC_02 = df.loc[(df["Unique ID"] == "MB2TC.02") & (df["Status"] == "OK") & (df["Value"] == "OK"), ["Actual Torque", "Actual Angle", "Status"]].tail(1).squeeze()
                 MB2TC_03 = df.loc[(df["Unique ID"] == "MB2TC.03") & (df["Status"] == "OK") & (df["Value"] == "OK"), ["Actual Torque", "Actual Angle", "Status"]].tail(1).squeeze()
@@ -283,9 +283,9 @@ class CAutoFITs_Screw():
                 data = {  
                     "EN": Operator, 
                     "Operation": self.operation, 
-                    "SN unit": "",
-                    "BN Top cover": CAutoFITs_Screw.check_pd_filter(Top_cover),
-                    "BN Screw": CAutoFITs_Screw.check_pd_filter(BN_Screw),   
+                    "SN": self.serial,
+                    "BN Top cover": self.sub_sn[1],
+                    "BN Screw": self.sub_sn[0],   
                     "Program Name": "Screwing Cover Screws Type1",
                     "Fixture jig": self.fixture,
                     "Torque_1": CAutoFITs_Screw.check_pd_filter(MB2TC_01["Actual Torque"]),
@@ -460,8 +460,8 @@ class CAutoFITs_Screw():
         
         return None
     
-    def check_process_done(self, serial):
-        pattren = os.path.join(self.path, "*", f"{serial}_*.csv")
+    def check_process_done(self):
+        pattren = os.path.join(self.path, "*", f"{self.serial}_*.csv")
         files = glob.glob(pattren)
         if files:
             file = max(files, key=os.path.getmtime)
@@ -472,32 +472,36 @@ class CAutoFITs_Screw():
         
         return None
 
+    def clearlog(self):
+        for item in os.listdir(self.path):
+            source_path = os.path.join(self.path, item)
+            destination_path = os.path.join(self.bin_folder, item)
+            shutil.move(source_path, destination_path)
+
     def aggregateAllDataAndSaveToFile(self):
         while True:
-            main_serial = scan_main_serial(self.operation)
-            sub_sn = scan_sub_serial(self.sub)
-            callback = send_fi_telegram(main_serial)
+            self.serial = scan_main_serial(self.operation)
+            self.sub_sn = scan_sub_serial(self.sub)
+            callback = send_fi_telegram(self.serial)
             if callback == False:
                 message_popup(3, "SQS Connect error", "Can't connect SQS Software, Please contract engineer")
                 quit()
             while True:
                 time.sleep(1)
-                file = self.check_process_done(main_serial)
+                file = self.check_process_done()
                 if file:
                     print("Process finished")
                     break
                 else:
                     print("Wait process finish")
         
-            minedData, current_path, CompactPathName = CAutoFITs_Screw.openDatabaseFile(self, file, main_serial, sub_sn)
-            # print(minedData)
+            minedData, current_path, CompactPathName = CAutoFITs_Screw.openDatabaseFile(self, file)
+            # print(minedData) 
             # print(CompactPathName)
             if minedData.empty or CompactPathName == "NG":
                 continue
             if self.FITs.upper() == "ENABLE":
-                minedData["SN"] = main_serial
-                
-                # CAutoFITs_Screw.UploadDataToFITs(self,minedData, current_path, CompactPathName)
+                CAutoFITs_Screw.UploadDataToFITs(self,minedData, current_path, CompactPathName)
                 print("Data has been uploaded")
                 print("reprocess")
 
@@ -505,4 +509,5 @@ if __name__  == "__main__":
     while True:
         print("START")
         minedData=CAutoFITs_Screw()
+        minedData.clearlog()
         minedData.aggregateAllDataAndSaveToFile()

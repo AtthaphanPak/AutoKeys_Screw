@@ -82,4 +82,15 @@ def scan_sub_serial(sub_names: list):
     root.mainloop()
     return result
 
-print(scan_sub_serial(["BN Screw"]))
+def message_popup(type, header, message):
+    root = tk.Tk()
+    root.withdraw()
+    root.attributes("-topmost", True)
+    if type == 1:
+        messagebox.showinfo(header, message)
+    elif type == 2:
+        messagebox.showwarning(header, message)
+    elif type == 2:
+        messagebox.showerror(header, message)
+
+# print(scan_sub_serial(["BN Screw"]))
