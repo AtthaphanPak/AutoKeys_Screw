@@ -363,12 +363,20 @@ class CAutoFITs_Screw():
 
             FolderInRawData = os.path.join(DataLog, os.path.basename(os.path.dirname(file)))
             isExist = os.path.exists(FolderInRawData)
-            try:
-                os.rename(file, New_ach)
-            except Exception as error:
-                df_output = pd.DataFrame() 
-                current_path = file
-                return  df_output, current_path, CompactPathName
+            while True:
+                try:
+                    os.rename(file, New_ach)
+                    break
+                except PermissionError as p:
+                    print("PermissionError")
+                    print(p)
+                    continue
+                except Exception as error:
+                    print("Exception")
+                    print(error)
+                    df_output = pd.DataFrame() 
+                    current_path = file
+                    return  df_output, current_path, CompactPathName
             
             if isExist is True:
                 shutil.move(New_ach, os.path.join(DataLog, os.path.basename(os.path.dirname(New_ach))))
@@ -386,12 +394,18 @@ class CAutoFITs_Screw():
             CompactPathName = False
             Corrupted_Files = os.path.join(DataLog, "Corrupted_Files")
             os.makedirs(Corrupted_Files, exist_ok=True)
-            try:
-                os.rename(file, New_ach)
-            except Exception as error:
-                df_output = pd.DataFrame() 
-                current_path = file
-                return  df_output, current_path, CompactPathName
+            while True:
+                try:
+                    os.rename(file, New_ach)
+                    break
+                except PermissionError as p:
+                    print(p)
+                    continue
+                except Exception as error:
+                    print(error)
+                    df_output = pd.DataFrame() 
+                    current_path = file
+                    return  df_output, current_path, CompactPathName
             isExist = os.path.exists(os.path.join(Corrupted_Files, os.path.basename(os.path.dirname(New_ach))))
             if isExist is True:
                 shutil.move(New_ach, os.path.join(Corrupted_Files, os.path.basename(os.path.dirname(New_ach))))
@@ -506,27 +520,47 @@ class CAutoFITs_Screw():
 
     def aggregateAllDataAndSaveToFile(self):
         while True:
-            self.serial = scan_main_serial(self.operation)
-            self.sub_sn = scan_sub_serial(self.sub)
-            callback = send_fi_telegram(self.serial)
-            if callback == False:
-                message_popup(3, "SQS Connect error", "Can't connect SQS Software, Please contract engineer")
+            # --- Main Serial ---
+            main_serial = scan_main_serial(self.operation)
+            print(f"main_serial\t {main_serial}")
+            if main_serial == "quit":
+                print("User quit Program")
                 quit()
             
-            file = None
-            while file is None:
-                file = self.check_process_done()
-                if file is None:
-                    time.sleep(1)
+            self.serial = main_serial
             
-            minedData, current_path, CompactPathName = CAutoFITs_Screw.openDatabaseFile(self, file)
-            # print(minedData) 
-            # print(CompactPathName)
-            if minedData.empty or CompactPathName == "NG":
-                continue
-            if self.FITs.upper() == "ENABLE":
-                CAutoFITs_Screw.UploadDataToFITs(self,minedData, current_path, CompactPathName)
-                print("reprocess")
+            while True:
+                # --- Sub Serial ---
+                sub_serial = scan_sub_serial(self.sub)
+                print(f"sub_serial\t {sub_serial}")
+                if sub_serial == "back":
+                    print("User went bacl to main serial")
+                    break
+                              
+                self.sub_sn = sub_serial
+                
+                callback = send_fi_telegram(self.serial)
+                print(callback)
+                if callback == False:
+                    message_popup(3, "SQS Connect error", "Can't connect SQS Software, Please contract engineer")
+                    quit()
+            
+                file = None
+                while file is None:
+                    file = self.check_process_done()
+                    if file is None:
+                        time.sleep(1)
+                
+                minedData, current_path, CompactPathName = CAutoFITs_Screw.openDatabaseFile(self, file)
+                # print(minedData) 
+                # print(CompactPathName)
+                if minedData.empty or CompactPathName == "NG":
+                    print(minedData)
+                    continue
+                if self.FITs.upper() == "ENABLE":
+                    CAutoFITs_Screw.UploadDataToFITs(self,minedData, current_path, CompactPathName)
+                    print(f"{self.serial} Finished ")
+                break
 
 if __name__  == "__main__":
     while True:

@@ -9,16 +9,20 @@ def Convert_Data(array_value):
     return pack_value
 
 def fn_Handshake(model: str, operation : str, serial : str, revision="2.90"):
+    print("fn_Handshake")
     lib = Dispatch("FITSDLL.clsDB") 
 
-    fn_initDB = lib.fn_initDB(model, operation, revision, "dbInnoviz")
+    fn_initDB = lib.fn_InitDB(model, operation, revision, "dbInnoviz")
     if fn_initDB == "True":
-        fn_handshake = lib.fn_handshake(model, operation, revision, serial)
+        fn_handshake = lib.fn_Handshake(model, operation, revision, serial)
         if fn_handshake == "True":
+            del lib
             return True
         else:
+            del lib
             return fn_handshake
     else:
+        del lib
         return fn_initDB
 
 def fn_Log(model: str, operation : str, parameters : str, values : str, revision="2.90"):
@@ -33,32 +37,37 @@ def fn_Log(model: str, operation : str, parameters : str, values : str, revision
         list_parameters["Shift"] = "NIGHT"
     parameters = parameters + ";" + "Shift"
     values =  values + ";" + list_parameters["Shift"]
-    fn_initDB = lib.fn_initDB(model,operation, revision ,"dbInnoviz")
+    fn_initDB = lib.fn_InitDB(model,operation, revision ,"dbInnoviz")
     if fn_initDB == "True":
         # print(parameters)
         # print(values)
-        fn_log = lib.fn_log(model, operation, revision, parameters, values, ";")
+        fn_log = lib.fn_Log(model, operation, revision, parameters, values, ";")
         if fn_log == "True":
+            del lib
             return True
         else:
-            return FitsDebugging()
+            del lib
+            return fn_Log
     else: 
+        del lib
         return False
 
 def fn_Query(model: str, operation : str, serial : str, query_parameters : str, revision="2.90"):
     lib = Dispatch("FITSDLL.clsDB")
     query_array = []
 
-    fn_initDB = lib.fn_initDB(model, operation, revision, "dbInnoviz")
+    fn_initDB = lib.fn_InitDB(model, operation, revision, "dbInnoviz")
     if fn_initDB == "True":
         for param in query_parameters.split(';'):
-            fn_query = lib.fn_query(model, operation, revision, serial, param, ";")
+            fn_query = lib.fn_Query(model, operation, revision, serial, param, ";")
             fn_query = str(fn_query)
             query_values = fn_query.replace("-;","").replace(";-","").replace("-","")
             query_array.append(query_values)
         query_result = ";".join(query_array)
+        del lib
         return query_result
     else:
+        del lib
         return False
     
 def FitsDebugging():
@@ -88,4 +97,4 @@ def FitsDebugging():
 
     return output
 
-# print(fn_Handshake("Main line", "IN230", "CIN251230004"))
+# print(fn_Handshake("Main line", "IN700", "CIN251700000"))

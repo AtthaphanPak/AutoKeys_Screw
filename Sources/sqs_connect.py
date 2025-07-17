@@ -52,8 +52,8 @@ def send_fi_telegram(product_id, ip="192.168.1.20", port=51000, retries=3):
         except socket.timeout:
             print("Timeout occurred, retrying... ")
         except Exception as e:
+            print("Can't connect SQS")
             print(e)
-            return e
         time.sleep(1)
 
     return False
