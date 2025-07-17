@@ -97,12 +97,12 @@ class CAutoFITs_Screw():
                 MB2TC_08 = CAutoFITs_Screw.get_last_valid_row(df, "MB2TC.08")
                 
                 data = {
-                    "EN": Operator,
-                    "Operation": self.operation, 
-                    "SN": self.serial,
-                    "BN Screw": self.sub_sn[0],
+                    "EN": str(Operator),
+                    "Operation": str(self.operation), 
+                    "SN": str(self.serial),
+                    "BN Screw": str(self.sub_sn[0]),
                     "Program Name": "Screwing MB to Top cover",
-                    "Fixture jig": self.fixture,
+                    "Fixture jig": str(self.fixture),
                     "Torque_1": CAutoFITs_Screw.check_pd_filter(MB2TC_01["Actual Torque"]),
                     "Angle_1": CAutoFITs_Screw.check_pd_filter(MB2TC_01["Actual Angle"]),
                     "Result_1": CAutoFITs_Screw.check_pd_filter(MB2TC_01["Status"]),
@@ -156,17 +156,17 @@ class CAutoFITs_Screw():
             # print("operation:\t", operation)
             try:
                 # BN_Screw = df.loc[(df["Unique ID"] == "Screw Material") & (df["Status"] == "OK"), "Value"].tail(1).squeeze()
-                DB2OB_01 = df.loc[(df["Unique ID"] == "DB2OB.01") & (df["Status"] == "OK") & (df["Value"] == "OK"), ["Actual Torque", "Actual Angle", "Status"]].tail(1).squeeze()
-                DB2OB_02 = df.loc[(df["Unique ID"] == "DB2OB.02") & (df["Status"] == "OK") & (df["Value"] == "OK"), ["Actual Torque", "Actual Angle", "Status"]].tail(1).squeeze()
-                DB2OB_03 = df.loc[(df["Unique ID"] == "DB2OB.03") & (df["Status"] == "OK") & (df["Value"] == "OK"), ["Actual Torque", "Actual Angle", "Status"]].tail(1).squeeze()
+                DB2OB_01 = CAutoFITs_Screw.get_last_valid_row(df, "DB2OB.01")
+                DB2OB_02 = CAutoFITs_Screw.get_last_valid_row(df, "DB2OB.02")
+                DB2OB_03 = CAutoFITs_Screw.get_last_valid_row(df, "DB2OB.03")
 
                 data = {
-                    "EN": Operator,     
-                    "Operation": self.operation, 
-                    "SN": self.serial, 
-                    "BN Screw": self.sub_sn[0],
+                    "EN": str(Operator),     
+                    "Operation": str(self.operation), 
+                    "SN": str(self.serial), 
+                    "BN Screw": str(self.sub_sn[0]),
                     "Program Name": "Detector to OB",
-                    "Fixture jig": self.fixture,
+                    "Fixture jig": str(self.fixture),
                     "Torque_1": CAutoFITs_Screw.check_pd_filter(DB2OB_01["Actual Torque"]),
                     "Angle_1": CAutoFITs_Screw.check_pd_filter(DB2OB_01["Actual Angle"]),
                     "Result_1": CAutoFITs_Screw.check_pd_filter(DB2OB_01["Status"]),
@@ -206,22 +206,21 @@ class CAutoFITs_Screw():
             try:
                 # PBA_SN = df.loc[(df["Unique ID"] == "SCAN PCBA") & (df["Status"] == "OK"), "Value"].tail(1).squeeze()
                 # BN_Screw = df.loc[(df["Unique ID"] == "SCAN SERIAL MB") & (df["Status"] == "OK"), "Value"].tail(1).squeeze()
-                IC2TC_01 = df.loc[(df["Unique ID"] == "IC2TC.01") & (df["Status"] == "OK") & (df["Value"] == "OK"), ["Actual Torque", "Actual Angle", "Status"]].tail(1).squeeze()
-                IC2TC_02 = df.loc[(df["Unique ID"] == "IC2TC.02") & (df["Status"] == "OK") & (df["Value"] == "OK"), ["Actual Torque", "Actual Angle", "Status"]].tail(1).squeeze()
-                IC2TC_03 = df.loc[(df["Unique ID"] == "IC2TC.03") & (df["Status"] == "OK") & (df["Value"] == "OK"), ["Actual Torque", "Actual Angle", "Status"]].tail(1).squeeze()
-                IC2TC_03 = df.loc[(df["Unique ID"] == "IC2TC.03") & (df["Status"] == "OK") & (df["Value"] == "OK"), ["Actual Torque", "Actual Angle", "Status"]].tail(1).squeeze()
-                IC2TC_04 = df.loc[(df["Unique ID"] == "IC2TC.04") & (df["Status"] == "OK") & (df["Value"] == "OK"), ["Actual Torque", "Actual Angle", "Status"]].tail(1).squeeze()
-                IC2TC_05 = df.loc[(df["Unique ID"] == "IC2TC.05") & (df["Status"] == "OK") & (df["Value"] == "OK"), ["Actual Torque", "Actual Angle", "Status"]].tail(1).squeeze()
-                IC2TC_06 = df.loc[(df["Unique ID"] == "IC2TC.06") & (df["Status"] == "OK") & (df["Value"] == "OK"), ["Actual Torque", "Actual Angle", "Status"]].tail(1).squeeze()
+                IC2TC_01 = CAutoFITs_Screw.get_last_valid_row(df, "IC2TC.01")
+                IC2TC_02 = CAutoFITs_Screw.get_last_valid_row(df, "IC2TC.02")
+                IC2TC_03 = CAutoFITs_Screw.get_last_valid_row(df, "IC2TC.03")
+                IC2TC_04 = CAutoFITs_Screw.get_last_valid_row(df, "IC2TC.04")
+                IC2TC_05 = CAutoFITs_Screw.get_last_valid_row(df, "IC2TC.05")
+                IC2TC_06 = CAutoFITs_Screw.get_last_valid_row(df, "IC2TC.06")
                 
                 data = { 
-                    "EN": Operator, 
-                    "Operation": self.operation, 
-                    "SN": self.serial, 
-                    "Interface PBA SN": self.sub_sn[1],
-                    "BN Screw": self.sub_sn[0],
+                    "EN": str(Operator), 
+                    "Operation": str(self.operation), 
+                    "SN": str(self.serial), 
+                    "Interface PBA SN": str(self.sub_sn[1]),
+                    "BN Screw": str(self.sub_sn[0]),
                     "Program Name": "Interface connector to Top",
-                    "Fixture jig": self.fixture,
+                    "Fixture jig": str(self.fixture),
                     "Torque_1": CAutoFITs_Screw.check_pd_filter(IC2TC_01["Actual Torque"]),
                     "Angle_1": CAutoFITs_Screw.check_pd_filter(IC2TC_01["Actual Angle"]),
                     "Result_1": CAutoFITs_Screw.check_pd_filter(IC2TC_01["Status"]),
@@ -270,24 +269,23 @@ class CAutoFITs_Screw():
             try:
                 # Top_cover = df.loc[(df["Unique ID"] == "SCAN SERIAL MB") & (df["Status"] == "OK"), "Value"].tail(1).squeeze()
                 # BN_Screw = df.loc[(df["Unique ID"] == "SCREW Material") & (df["Status"] == "OK"), "Value"].tail(1).squeeze()
-                MB2TC_01 = df.loc[(df["Unique ID"] == "MB2TC.01") & (df["Status"] == "OK") & (df["Value"] == "OK"), ["Actual Torque", "Actual Angle", "Status"]].tail(1).squeeze()
-                MB2TC_02 = df.loc[(df["Unique ID"] == "MB2TC.02") & (df["Status"] == "OK") & (df["Value"] == "OK"), ["Actual Torque", "Actual Angle", "Status"]].tail(1).squeeze()
-                MB2TC_03 = df.loc[(df["Unique ID"] == "MB2TC.03") & (df["Status"] == "OK") & (df["Value"] == "OK"), ["Actual Torque", "Actual Angle", "Status"]].tail(1).squeeze()
-                MB2TC_03 = df.loc[(df["Unique ID"] == "MB2TC.03") & (df["Status"] == "OK") & (df["Value"] == "OK"), ["Actual Torque", "Actual Angle", "Status"]].tail(1).squeeze()
-                MB2TC_04 = df.loc[(df["Unique ID"] == "MB2TC.04") & (df["Status"] == "OK") & (df["Value"] == "OK"), ["Actual Torque", "Actual Angle", "Status"]].tail(1).squeeze()
-                MB2TC_05 = df.loc[(df["Unique ID"] == "MB2TC.05") & (df["Status"] == "OK") & (df["Value"] == "OK"), ["Actual Torque", "Actual Angle", "Status"]].tail(1).squeeze()
-                MB2TC_06 = df.loc[(df["Unique ID"] == "MB2TC.06") & (df["Status"] == "OK") & (df["Value"] == "OK"), ["Actual Torque", "Actual Angle", "Status"]].tail(1).squeeze()
-                MB2TC_07 = df.loc[(df["Unique ID"] == "MB2TC.07") & (df["Status"] == "OK") & (df["Value"] == "OK"), ["Actual Torque", "Actual Angle", "Status"]].tail(1).squeeze()
-                MB2TC_08 = df.loc[(df["Unique ID"] == "MB2TC.08") & (df["Status"] == "OK") & (df["Value"] == "OK"), ["Actual Torque", "Actual Angle", "Status"]].tail(1).squeeze()
+                MB2TC_01 = CAutoFITs_Screw.get_last_valid_row(df, "MB2TC.01")
+                MB2TC_02 = CAutoFITs_Screw.get_last_valid_row(df, "MB2TC.02")
+                MB2TC_03 = CAutoFITs_Screw.get_last_valid_row(df, "MB2TC.03")
+                MB2TC_04 = CAutoFITs_Screw.get_last_valid_row(df, "MB2TC.04")
+                MB2TC_05 = CAutoFITs_Screw.get_last_valid_row(df, "MB2TC.05")
+                MB2TC_06 = CAutoFITs_Screw.get_last_valid_row(df, "MB2TC.06")
+                MB2TC_07 = CAutoFITs_Screw.get_last_valid_row(df, "MB2TC.07")
+                MB2TC_08 = CAutoFITs_Screw.get_last_valid_row(df, "MB2TC.08")
                 
                 data = {  
-                    "EN": Operator, 
-                    "Operation": self.operation, 
-                    "SN": self.serial,
-                    "BN Top cover": self.sub_sn[1],
-                    "BN Screw": self.sub_sn[0],   
+                    "EN": str(Operator), 
+                    "Operation": str(self.operation), 
+                    "SN": str(self.serial),
+                    "BN Top cover": str(self.sub_sn[1]),
+                    "BN Screw": str(self.sub_sn[0]),   
                     "Program Name": "Screwing Cover Screws Type1",
-                    "Fixture jig": self.fixture,
+                    "Fixture jig": str(self.fixture),
                     "Torque_1": CAutoFITs_Screw.check_pd_filter(MB2TC_01["Actual Torque"]),
                     "Angle_1": CAutoFITs_Screw.check_pd_filter(MB2TC_01["Actual Angle"]),
                     "Result_1": CAutoFITs_Screw.check_pd_filter(MB2TC_01["Status"]),
@@ -317,6 +315,7 @@ class CAutoFITs_Screw():
 
                 # Convert the dictionary to a DataFrame
                 df_output = pd.DataFrame([data])
+                # print(df_output)
                 nan_positions = df_output.isna()
                 if nan_positions.any().any():
                     
@@ -420,6 +419,8 @@ class CAutoFITs_Screw():
         model = self.model
         operation = self.operation
         serial = self.serial
+        # print(dataFrame.columns.tolist())
+        # print(dataFrame.values.tolist()[0])
         parameters = ";".join(dataFrame.columns.tolist())
         values = ";".join(dataFrame.values.tolist()[0])
         Handshake_status = fn_Handshake(model, operation, serial)
@@ -427,7 +428,7 @@ class CAutoFITs_Screw():
         if Handshake_status is True:
             fn_log = fn_Log(model, operation, parameters, values)
             if fn_log == True:
-                print(f"{serial} has been uploaded TO FITS {operation}.")
+                message_popup(1, "FITs Log", f"{serial} has been uploaded TO FITS {operation}.")
             else:   
                 print('FITs Log Fail:\t', f'{fn_log}')
                 message_popup(3, 'FITs Log Fail', f'Serial {serial}\n{fn_log}')
@@ -443,20 +444,20 @@ class CAutoFITs_Screw():
         ok_df = df.loc[
             (df["Unique ID"] == uid) &
             (df["Status"] == "OK") &
-            (df["Value"] == "OK"),
+            (df["Value"].isin(["OK", "manualOK"])),
             ["Actual Torque", "Actual Angle", "Status"]
             ]
         if not ok_df.empty:
-            return ok_df.tail(1).squeeze()
+            return ok_df.tail(1).squeeze().astype(str)
         
         nok_df = df.loc[
             (df["Unique ID"] == uid) &
             (df["Status"] == "NOK") &
-            (df["Value"] == "NOK"),
+            (df["Value"].isin(["NOK", "manualNOK"])),
             ["Actual Torque", "Actual Angle", "Status"]
             ]
         if not nok_df.empty:
-            return nok_df.tail(1).squeeze()
+            return nok_df.tail(1).squeeze().astype(str)
         
         return None
     
@@ -465,7 +466,7 @@ class CAutoFITs_Screw():
         files = glob.glob(pattren)
         if not files:
             return None
-        file = max(file, key=os.path.getatime)
+        file = max(files, key=os.path.getatime)
         temp_path =os.path.join(tempfile.gettempdir(), "log_temp.csv")
 
         try:
@@ -474,8 +475,10 @@ class CAutoFITs_Screw():
 
             if "Unique ID" in df.columns:
                 if df["Unique ID"].astype(str).str.contains("Complete Process").any():
+                    print(f"Process finished file -> {file}")
                     return file
                 else:
+                    print(f"Wait process finish file -> {file}")
                     return None
             else:
                 raise ValueError("Missing 'Unique ID' column.")
@@ -509,15 +512,13 @@ class CAutoFITs_Screw():
             if callback == False:
                 message_popup(3, "SQS Connect error", "Can't connect SQS Software, Please contract engineer")
                 quit()
-            while True:
-                time.sleep(1)
+            
+            file = None
+            while file is None:
                 file = self.check_process_done()
-                if file:
-                    print("Process finished")
-                    break
-                else:
-                    print("Wait process finish")
-        
+                if file is None:
+                    time.sleep(1)
+            
             minedData, current_path, CompactPathName = CAutoFITs_Screw.openDatabaseFile(self, file)
             # print(minedData) 
             # print(CompactPathName)
@@ -525,7 +526,6 @@ class CAutoFITs_Screw():
                 continue
             if self.FITs.upper() == "ENABLE":
                 CAutoFITs_Screw.UploadDataToFITs(self,minedData, current_path, CompactPathName)
-                print("Data has been uploaded")
                 print("reprocess")
 
 if __name__  == "__main__":
