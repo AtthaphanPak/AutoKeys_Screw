@@ -101,6 +101,7 @@ class CAutoFITs_Screw():
                     "Operation": str(self.operation), 
                     "SN": str(self.serial),
                     "BN Screw": str(self.sub_sn[0]),
+                    "Main board SN": str(self.sub_sn[1]),
                     "Program Name": "Screwing MB to Top cover",
                     "Fixture jig": str(self.fixture),
                     "Torque_1": CAutoFITs_Screw.check_pd_filter(MB2TC_01["Actual Torque"]),

@@ -100,4 +100,7 @@ def FitsDebugging():
 # lib = Dispatch("FITSDLL.clsDB") 
 # print(dir(lib))
 # lib.closeDB()
-# print(fn_Handshake("Main line", "IN240", "CIN251230000"))
+# print(fn_Handshake("Main line", "IN230", "CIN251230000"))
+# print(fn_Handshake("Main line", "IN230", "CIN251230001"))
+# print(fn_Handshake("Main line", "IN230", "CIN251230002"))
+# print(fn_Handshake("Main line", "IN230", "CIN251230003"))
