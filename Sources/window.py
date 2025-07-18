@@ -1,4 +1,3 @@
-import os
 import tkinter as tk
 from tkinter import messagebox
 from fitsdll import fn_Handshake
@@ -58,6 +57,7 @@ def scan_sub_serial(sub_names: list):
             root.destroy()
         else:
             label_error.config(text="กรุณากรอกให้ครบทุกช่อง")
+
     def on_quit():
         result["value"] = "back"
         root.quit()
@@ -68,28 +68,50 @@ def scan_sub_serial(sub_names: list):
     root.attributes("-fullscreen", True)
     root.attributes("-topmost", True)
     root.protocol("WM_DELETE_WINDOW", lambda: None)
+
     entry_list = []
     frame = tk.Frame(root)
     frame.place(relx=0.5, rely=0.5, anchor="center")
+
     tk.Label(frame, text="Please scan all Sub Serial", font=("Helvetica", 32)).pack(pady=20)
-    for name in sub_names:
+
+    for i, name in enumerate(sub_names):
         row = tk.Frame(frame)
-        row.pack(pady=10)
+        
         tk.Label(row, text=f"{name}:", font=("Helvetica", 28)).pack(side="left", padx=10)
+        
         entry = tk.Entry(row, font=("Courier", 36), justify="center", width=20)
         entry.pack(side="left")
+        
+        def make_return_handler(index):
+            def handler(event):
+                if index < len(entry_list) - 1:
+                    entry_list[index + 1].focus_set()
+                else:
+                    on_submit()
+            return handler
+        
+        entry.bind("<Return>", make_return_handler(i))
+
         entry_list.append(entry)
+        row.pack(pady=5)
+
     entry_list[0].focus()
+
     label_error = tk.Label(frame, text="", font=("Helvetica", 20), fg="red")
     label_error.pack()
+
     button_frame = tk.Frame(frame)
     button_frame.pack(pady=30)
     tk.Button(button_frame, text="Apply", font=("Helvetica", 24), width=10, command=on_submit).pack(side="left", padx=20)
     tk.Button(button_frame, text="Back", font=("Helvetica", 24), width=10, command=on_quit).pack(side="right", padx=20)
+    button_frame.pack(pady=20)
+    
     root.mainloop()
     return result["value"]
 
 def message_popup(type, header, message):
+    print("Header")
     root = tk.Tk()
     root.withdraw()
     root.attributes("-topmost", True)
@@ -97,8 +119,9 @@ def message_popup(type, header, message):
         messagebox.showinfo(header, message)
     elif type == 2:
         messagebox.showwarning(header, message)
-    elif type == 2:
+    elif type == 3:
         messagebox.showerror(header, message)
 
-# print(scan_sub_serial(["BN Screw"]))
+# print(scan_sub_serial(["BN Screw", "Interface PBA SN"]))
 # scan_main_serial("IN700")
+# message_popup(3, "HI", "HELLO WORLD")
