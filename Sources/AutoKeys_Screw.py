@@ -437,22 +437,14 @@ class CAutoFITs_Screw():
         # print(dataFrame.values.tolist()[0])
         parameters = ";".join(dataFrame.columns.tolist())
         values = ";".join(dataFrame.values.tolist()[0])
-        Handshake_status = fn_Handshake(model, operation, serial)
         
-        if Handshake_status is True:
-            fn_log = fn_Log(model, operation, parameters, values)
-            if fn_log == True:
-                message_popup(1, "FITs Log", f"{serial} has been uploaded TO FITS {operation}.")
-            else:   
-                print('FITs Log Fail:\t', f'{fn_log}')
-                message_popup(3, 'FITs Log Fail', f'Serial {serial}\n{fn_log}')
-                CAutoFITs_Screw.move_folder(os.path.dirname(current_path), os.path.join(FITS_Log_Fail, os.path.basename(os.path.dirname(current_path))))
-        else:
-                print('FITs Log Fail:\t', f'{Handshake_status}')
-                message_popup(3, 'FITs Handcheck Fail', f'Serial {serial}\n{Handshake_status}')
-                rename =  os.path.join(os.path.dirname(CompactPathName) ,"Fail_HandCheck_" + os.path.basename(CompactPathName))
-                os.rename(CompactPathName, rename)
-                CAutoFITs_Screw.move_folder(os.path.dirname(current_path), os.path.join(FITS_Handcheck_Fail, os.path.basename(os.path.dirname(current_path))))
+        fn_log = fn_Log(model, operation, parameters, values)
+        if fn_log == True:
+            message_popup(1, "FITs Log", f"{serial} has been uploaded TO FITS {operation}.")
+        else:   
+            print('FITs Log Fail:\t', f'{fn_log}')
+            message_popup(3, 'FITs Log Fail', f'Serial {serial}\n{fn_log}')
+            CAutoFITs_Screw.move_folder(os.path.dirname(current_path), os.path.join(FITS_Log_Fail, os.path.basename(os.path.dirname(current_path))))
 
     def get_last_valid_row(df, uid):
         ok_df = df.loc[
@@ -479,6 +471,7 @@ class CAutoFITs_Screw():
         pattren = os.path.join(self.path, "*", f"{self.serial}_*.csv")
         files = glob.glob(pattren)
         if not files:
+            print("File not found")
             return None
         file = max(files, key=os.path.getatime)
         temp_path =os.path.join(tempfile.gettempdir(), "log_temp.csv")
@@ -534,7 +527,7 @@ class CAutoFITs_Screw():
                 sub_serial = scan_sub_serial(self.sub)
                 print(f"sub_serial\t {sub_serial}")
                 if sub_serial == "back":
-                    print("User went bacl to main serial")
+                    print("User went back to main serial")
                     break
                               
                 self.sub_sn = sub_serial

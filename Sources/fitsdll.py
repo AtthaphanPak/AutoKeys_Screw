@@ -16,13 +16,13 @@ def fn_Handshake(model: str, operation : str, serial : str, revision="2.90"):
     if fn_initDB == "True":
         fn_handshake = lib.fn_Handshake(model, operation, revision, serial)
         if fn_handshake == "True":
-            del lib
+            lib.closeDB()
             return True
         else:
-            del lib
+            lib.closeDB()
             return fn_handshake
     else:
-        del lib
+        lib.closeDB()
         return fn_initDB
 
 def fn_Log(model: str, operation : str, parameters : str, values : str, revision="2.90"):
@@ -43,13 +43,13 @@ def fn_Log(model: str, operation : str, parameters : str, values : str, revision
         # print(values)
         fn_log = lib.fn_Log(model, operation, revision, parameters, values, ";")
         if fn_log == "True":
-            del lib
+            lib.closeDB()
             return True
         else:
-            del lib
+            lib.closeDB()
             return fn_Log
     else: 
-        del lib
+        lib.closeDB()
         return False
 
 def fn_Query(model: str, operation : str, serial : str, query_parameters : str, revision="2.90"):
@@ -64,10 +64,10 @@ def fn_Query(model: str, operation : str, serial : str, query_parameters : str, 
             query_values = fn_query.replace("-;","").replace(";-","").replace("-","")
             query_array.append(query_values)
         query_result = ";".join(query_array)
-        del lib
+        lib.closeDB()
         return query_result
     else:
-        del lib
+        lib.closeDB()
         return False
     
 def FitsDebugging():
@@ -97,4 +97,7 @@ def FitsDebugging():
 
     return output
 
-# print(fn_Handshake("Main line", "IN700", "CIN251700000"))
+# lib = Dispatch("FITSDLL.clsDB") 
+# print(dir(lib))
+# lib.closeDB()
+# print(fn_Handshake("Main line", "IN240", "CIN251230000"))
