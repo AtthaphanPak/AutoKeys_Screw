@@ -74,28 +74,29 @@ def Check_result_telegram(product_id, ip="192.168.1.20", port=51000):
         while True:
             try:
                 response = s.recv(128).decode().strip()
-                print("📥 Response from SQS3:", response)
+                print(response)
 
                 match_LB = re.search(r'(LB\d{2}0)', response)
                 if match_LB:
                     LB = match_LB.group(1)
                     telegram = f"{prefix}{LB}10000"
                     telegram = telegram.ljust(128)
-                    print("📥 Sent from PLC: ",telegram)
+                    print(telegram)
                     s.sendall(telegram.encode())
 
                 match_FE = re.search(fr'(FE\d{{2}}00\d{{4}}{product_id}XXXX(00|01))', response)
-                print(match_FE)
                 if match_FE:
                     FE = match_FE.group(1)
-                    telegram = f"{prefix}{FE}10000"
+                    telegram = f"{prefix}{FE[:5]}10000"
                     telegram = telegram.ljust(128)
-                    print("📥 Sent from PLC: ",telegram)
+                    print(telegram)
                     s.sendall(telegram.encode())
+                    return True
 
             except socket.timeout:
                 print("timeout")
 
-serial = "CIN251230000"
-send_fi_telegram(serial)
-Check_result_telegram(serial)
+# serial = "CIN251230066"
+# inital_telegram()
+# send_fi_telegram(serial)
+# Check_result_telegram(serial)

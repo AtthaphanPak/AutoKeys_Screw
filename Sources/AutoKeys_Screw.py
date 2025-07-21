@@ -6,8 +6,8 @@ import configparser
 import time
 import tempfile
 
-from fitsdll import fn_Handshake, fn_Log
-from sqs_connect import send_fi_telegram
+from fitsdll import fn_Log
+from sqs_connect import send_fi_telegram, Check_result_telegram
 from window import scan_main_serial, scan_sub_serial, message_popup
 
 class CAutoFITs_Screw():
@@ -34,13 +34,14 @@ class CAutoFITs_Screw():
         self.serial = ""
         self.sub_sn = ""
 
-    def findAllTorqueDatabaseFiles(self):
-        allfiles = []
-        source_filepath = os.path.join(self.path, self.path_extend)
-        for file in glob.glob(source_filepath):
-            # print(file)
-            allfiles.append(file)
-        return allfiles
+    def findTorqueDataFiles(self):
+        pattren = os.path.join(self.path, "*", f"{self.serial}_*.csv")
+        files = glob.glob(pattren)
+        if not files:
+            print("File not found")
+            return None
+        file = max(files, key=os.path.getatime)
+        return file
     
     def move_folder(src, dst):
         if os.path.exists(dst):
@@ -514,7 +515,7 @@ class CAutoFITs_Screw():
 
     def aggregateAllDataAndSaveToFile(self):
         while True:
-            # --- Main Serial ---
+            self.clearlog()
             main_serial = scan_main_serial(self.operation)
             print(f"main_serial\t {main_serial}")
             if main_serial == "quit":
@@ -533,26 +534,37 @@ class CAutoFITs_Screw():
                               
                 self.sub_sn = sub_serial
                 
-                callback = send_fi_telegram(self.serial)
+                callback = send_fi_telegram(main_serial)
                 print(callback)
                 if callback == False:
                     message_popup(3, "SQS Connect error", "Can't connect SQS Software, Please contract engineer")
                     quit()
             
-                file = None
-                while file is None:
-                    file = self.check_process_done()
-                    if file is None:
-                        time.sleep(1)
-                
-                minedData, current_path, CompactPathName = CAutoFITs_Screw.openDatabaseFile(self, file)
+                # file = None
+                # while file is None:
+                #     file = self.check_process_done()
+                #     if file is None:
+                #         time.sleep(1)
+
+                Check_result_telegram(main_serial)
+
+                for i in range(3):
+                    file = self.findTorqueDataFiles()
+                    if file:
+                        break
+                    else:
+                        print("retry find log {i}")
+                        message_popup(3, "File not found", "Please, Check log file in SQS Log folder")
+                        continue
+                    
+                minedData, current_path, CompactPathName = self.openDatabaseFile(file)
                 # print(minedData) 
                 # print(CompactPathName)
                 if minedData.empty or CompactPathName == "NG":
                     print(minedData)
                     continue
                 if self.FITs.upper() == "ENABLE":
-                    CAutoFITs_Screw.UploadDataToFITs(self,minedData, current_path, CompactPathName)
+                    self.UploadDataToFITs(minedData, current_path, CompactPathName)
                     print(f"{self.serial} Finished ")
                 break
 
@@ -560,5 +572,4 @@ if __name__  == "__main__":
     while True:
         print("START")
         minedData=CAutoFITs_Screw()
-        minedData.clearlog()
         minedData.aggregateAllDataAndSaveToFile()
