@@ -66,6 +66,7 @@ def inital_telegram(ip="192.168.1.20", port=51000):
                 print("timeout")
 
 def Check_result_telegram(product_id, ip="192.168.1.20", port=51000):
+    print("Check_result_telegram")
     prefix = "PC STATION      PLC             "
 
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:

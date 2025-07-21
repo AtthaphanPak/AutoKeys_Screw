@@ -535,7 +535,6 @@ class CAutoFITs_Screw():
                 self.sub_sn = sub_serial
                 
                 callback = send_fi_telegram(main_serial)
-                print(callback)
                 if callback == False:
                     message_popup(3, "SQS Connect error", "Can't connect SQS Software, Please contract engineer")
                     quit()
