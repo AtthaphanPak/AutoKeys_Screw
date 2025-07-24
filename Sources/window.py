@@ -24,12 +24,13 @@ def scan_main_serial(operation, model= "*"):
         root.destroy()
 
     root = tk.Tk()
-    root.overrideredirect(True)
+    # root.overrideredirect(True)
     root.title("Scan Main Serial")
     root.resizable(False, False)
     root.attributes("-topmost", True)
-    # root.protocol("WM_DELETE_WINDOW", lambda: None)
+    root.protocol("WM_DELETE_WINDOW", lambda: None)
     w, h = 850, 450
+    # root.geometry(f"{w}x{h}")
     root.update_idletasks()
     screen_width = root.winfo_screenwidth()
     screen_hight = root.winfo_screenheight()
