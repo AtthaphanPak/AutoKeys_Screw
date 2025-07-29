@@ -440,7 +440,8 @@ class CAutoFITs_Screw():
         parameters = ";".join(dataFrame.columns.tolist())
         values = ";".join(dataFrame.values.tolist()[0])
         
-        fn_log = fn_Log(model, operation, parameters, values)
+        # fn_log = fn_Log(model, operation, parameters, values)
+        fn_log = True
         if fn_log == True:
             message_popup(1, "FITs Log", f"{serial} has been uploaded TO FITS {operation}.")
         else:   

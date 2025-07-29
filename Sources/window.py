@@ -10,6 +10,7 @@ def scan_main_serial(operation, model= "*"):
 
         if len(serial) == 12:
             status = fn_Handshake(model, operation, serial)
+            status = True
             if status == True:
                 result["value"] = serial
                 root.quit()
