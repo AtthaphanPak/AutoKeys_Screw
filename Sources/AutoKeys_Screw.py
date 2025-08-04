@@ -516,7 +516,7 @@ class CAutoFITs_Screw():
     def aggregateAllDataAndSaveToFile(self):
         while True:
             self.clearlog()
-            main_serial = scan_main_serial(self.operation)
+            main_serial = scan_main_serial(self.FITs, self.model, self.operation)
             print(f"main_serial\t {main_serial}")
             if main_serial == "quit":
                 print("User quit Program")
@@ -538,12 +538,6 @@ class CAutoFITs_Screw():
                 if callback == False:
                     message_popup(3, "SQS Connect error", "Can't connect SQS Software, Please contract engineer")
                     quit()
-            
-                # file = None
-                # while file is None:
-                #     file = self.check_process_done()
-                #     if file is None:
-                #         time.sleep(1)
 
                 Check_result_telegram(main_serial)
 

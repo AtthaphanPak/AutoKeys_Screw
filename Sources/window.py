@@ -2,22 +2,28 @@ import tkinter as tk
 from tkinter import messagebox
 from fitsdll import fn_Handshake
 
-def scan_main_serial(operation, model= "*"):
+def scan_main_serial(mode: str, model: str, operation: str):
     result = {"value": None}
 
     def on_submit():
         serial = entry.get().strip()
 
-        if len(serial) == 12:
-            status = fn_Handshake(model, operation, serial)
-            if status == True:
-                result["value"] = serial
-                root.quit()
-                root.destroy()
+        if mode.upper() == "PRODUCTION":
+            if len(serial) == 12:
+                status = fn_Handshake(model, operation, serial)
+                if status == True:
+                    result["value"] = serial
+                    root.quit()
+                    root.destroy()
+                else:
+                    label_error.config(text=status)
             else:
-                label_error.config(text=status)
+                label_error.config(text="Serial must be 12 digit")
         else:
-            label_error.config(text="Serial must be 12 digit")
+            result["value"] = serial
+            root.quit()
+            root.destroy()
+            
     def on_quit():
         result["value"] = "quit"
         root.quit()
