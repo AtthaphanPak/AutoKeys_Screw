@@ -2,17 +2,22 @@ import tkinter as tk
 from tkinter import messagebox
 from fitsdll import fn_Handshake
 
-def scan_main_serial(mode: str, model: str, operation: str):
-    result = {"value": None}
+def scan_serial(mode: str, model: str, operation: str, sub_names: list):
+    main_result = {}
 
     def on_submit():
         serial = entry.get().strip()
-
         if mode.upper() == "PRODUCTION":
             if len(serial) == 12:
                 status = fn_Handshake(model, operation, serial)
-                if status == True:
-                    result["value"] = serial
+                if status is True:
+                    main_result["main"] = serial
+                    sub_serial = scan_sub_serial(root, sub_names)
+                    if sub_serial == "back":
+                        entry.delete(0, tk.END)
+                        entry.focus_set()
+                        return
+                    main_result["subs"] = sub_serial
                     root.quit()
                     root.destroy()
                 else:
@@ -20,12 +25,22 @@ def scan_main_serial(mode: str, model: str, operation: str):
             else:
                 label_error.config(text="Serial must be 12 digit")
         else:
-            result["value"] = serial
+            main_result["main"] = serial
+            sub_serial = scan_sub_serial(root, sub_names)
+            if sub_serial == "back":
+                main_result["main"] = None
+                main_result["subs"] = None
+                entry.delete(0, tk.END)
+                label_error.config(text="")
+                entry.focus_set()
+                return
+            main_result["subs"] = sub_serial
             root.quit()
             root.destroy()
             
     def on_quit():
-        result["value"] = "quit"
+        main_result["main"] = "quit"
+        main_result["subs"] = "quit"
         root.quit()
         root.destroy()
 
@@ -58,9 +73,9 @@ def scan_main_serial(mode: str, model: str, operation: str):
     tk.Button(button_frame, text="Apply", font=("Helvetica", 24), width=10, command=on_submit).pack(side="left", padx=20)
     tk.Button(button_frame, text="Quit", font=("Helvetica", 24), width=10, command=on_quit).pack(side="right", padx=20)
     root.mainloop()
-    return result["value"]
+    return main_result
 
-def scan_sub_serial(sub_names: list):
+def scan_sub_serial(root, sub_names: list):
     if len(sub_names) == 0:
         return None
     result = {"value": None}
@@ -68,38 +83,29 @@ def scan_sub_serial(sub_names: list):
         serials = [entry.get().strip() for entry in entry_list]
         if all(serials):
             result["value"] = serials
-            root.quit()
-            root.destroy()
+            sub.destroy()
         else:
             label_error.config(text="Please Keys all Sub Serials")
     def on_quit():
         result["value"] = "back"
-        root.quit()
-        root.destroy()
-    root = tk.Tk()
-    root.overrideredirect(True)
-    root.title("Scan Sub Serials")
-    root.resizable(False, False)
-    root.attributes("-topmost", True)
-    # root.protocol("WM_DELETE_WINDOW", lambda: None)
+        sub.destroy()
+    sub = tk.Toplevel(root)
+    sub.overrideredirect(True)
+    sub.title("Scan Sub Serials")
+    sub.resizable(False, False)
+    sub.lift()
+    sub.attributes("-topmost", True)
     w, h = 850, 450
-    root.update_idletasks()
-    screen_width = root.winfo_screenwidth()
-    screen_hight = root.winfo_screenheight()
+    sub.update_idletasks()
+    screen_width = sub.winfo_screenwidth()
+    screen_height = sub.winfo_screenheight()
     x = (screen_width // 2) - (w // 2)
-    y = (screen_hight // 2) - (h // 2)
-    root.geometry(f"{w}x{h}+{x}+{y}")
-
-    # ✅ ให้ root ยืดหยุ่นเมื่อถูก resize
-    root.grid_rowconfigure(0, weight=1)
-    root.grid_columnconfigure(0, weight=1)
-    # ✅ สร้าง frame สำหรับเนื้อหากลาง
-    frame = tk.Frame(root)
+    y = (screen_height // 2) - (h // 2)
+    sub.geometry(f"{w}x{h}+{x}+{y}")
+    frame = tk.Frame(sub)
     frame.grid(row=0, column=0, sticky="nsew", padx=20, pady=20)
-    # ✅ ให้ frame ยืดแนวตั้งแนวนอน
     frame.grid_columnconfigure(0, weight=1)
     frame.grid_columnconfigure(1, weight=1)
-    # ✅ หัวข้อ
     tk.Label(frame, text="Scan Sub Serials", font=("Helvetica", 32)).grid(
         row=0, column=0, columnspan=2, pady=(0, 20)
     )
@@ -110,16 +116,20 @@ def scan_sub_serial(sub_names: list):
         )
         entry = tk.Entry(frame, font=("Helvetica", 20), width=30)
         entry.grid(row=i + 1, column=1, sticky="w", padx=10, pady=5)
-        entry.bind("<Return>", lambda e, idx=i: entry_list[idx + 1].focus_set() if idx + 1 < len(sub_names) else on_submit())
+        entry.bind("<Return>", lambda e, idx=i: entry_list[idx + 1].focus_set()
+                   if idx + 1 < len(sub_names) else on_submit())
         entry_list.append(entry)
-    entry_list[0].focus_set()
     label_error = tk.Label(frame, text="", font=("Helvetica", 20), fg="red")
     label_error.grid(row=len(sub_names) + 1, column=0, columnspan=2, pady=5)
     btn_frame = tk.Frame(frame)
     btn_frame.grid(row=len(sub_names) + 2, column=0, columnspan=2, pady=10)
     tk.Button(btn_frame, text="Apply", command=on_submit, font=("Helvetica", 24), width=10).pack(side="left", padx=10)
     tk.Button(btn_frame, text="Back", command=on_quit, font=("Helvetica", 24), width=10).pack(side="left", padx=10)
-    root.mainloop()
+    sub.after_idle(lambda: entry_list[0].focus_force())
+    # ✅ ทำให้หน้าต่างนี้ modal → block root
+    sub.grab_set()
+    root.wait_window(sub)
+    # ✅ return ค่าที่ถูกตั้งไว้ใน result
     return result["value"]
 
 def message_popup(type, header, message):
@@ -134,6 +144,6 @@ def message_popup(type, header, message):
     elif type == 3:
         messagebox.showerror(header, message)
 
-# print(scan_sub_serial(["BN Screw", "Interface PBA SN"]))
-# scan_main_serial("IN700")
-# message_popup(3, "HI", "HELLO WORLD")
+# serial, subs = scan_main_serial("DEBUG", "Main line", "IN700", ["BN Screw", "Interface PBA SN"])
+# print(serial)
+# print(subs)

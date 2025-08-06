@@ -8,7 +8,7 @@ import tempfile
 
 from fitsdll import fn_Log
 from sqs_connect import send_fi_telegram, Check_result_telegram
-from window import scan_main_serial, scan_sub_serial, message_popup
+from window import scan_serial, message_popup
 
 class CAutoFITs_Screw():
     def __init__ (self):
@@ -32,7 +32,7 @@ class CAutoFITs_Screw():
         self.bin_folder = os.path.join(os.path.dirname(self.path), "bin")
         os.makedirs(self.bin_folder, exist_ok=True)
         self.serial = ""
-        self.sub_sn = ""
+        self.sub_sn = []
 
     def findTorqueDataFiles(self):
         pattren = os.path.join(self.path, "*", f"{self.serial}_*.csv")
@@ -505,6 +505,8 @@ class CAutoFITs_Screw():
                     print(e)
 
     def clearlog(self):
+        self.serial = ""
+        self.sub_sn = []
         for item in os.listdir(self.path):
             source_path = os.path.join(self.path, item)
             basename = os.path.basename(source_path) + datetime.now().strftime("%Y-%m-%d %H_%M_%S")
@@ -516,50 +518,44 @@ class CAutoFITs_Screw():
     def aggregateAllDataAndSaveToFile(self):
         while True:
             self.clearlog()
-            main_serial = scan_main_serial(self.FITs, self.model, self.operation)
-            print(f"main_serial\t {main_serial}")
-            if main_serial == "quit":
+            serials = scan_serial(self.FITs, self.model, self.operation)
+            print("main_serial\t", serials["main"])
+            if serials["main"] == "quit":
                 print("User quit Program")
                 quit()
             
-            self.serial = main_serial
+            self.serial = serials["main"]
             
-            while True:
-                # --- Sub Serial ---
-                sub_serial = scan_sub_serial(self.sub)
-                print(f"sub_serial\t {sub_serial}")
-                if sub_serial == "back":
-                    print("User went back to main serial")
+            # --- Sub Serial ---
+            print("sub_serial\t" ,serials["subs"])
+                            
+            self.sub_sn = serials["subs"]
+            
+            callback = send_fi_telegram(self.serial)
+            if callback == False:
+                message_popup(3, "SQS Connect error", "Can't connect SQS Software, Please contract engineer")
+                quit()
+
+            Check_result_telegram(self.serial)
+
+            for i in range(3):
+                file = self.findTorqueDataFiles()
+                if file:
                     break
-                              
-                self.sub_sn = sub_serial
-                
-                callback = send_fi_telegram(main_serial)
-                if callback == False:
-                    message_popup(3, "SQS Connect error", "Can't connect SQS Software, Please contract engineer")
-                    quit()
-
-                Check_result_telegram(main_serial)
-
-                for i in range(3):
-                    file = self.findTorqueDataFiles()
-                    if file:
-                        break
-                    else:
-                        print("retry find log {i}")
-                        message_popup(3, "File not found", "Please, Check log file in SQS Log folder")
-                        continue
-                    
-                minedData, current_path, CompactPathName = self.openDatabaseFile(file)
-                # print(minedData) 
-                # print(CompactPathName)
-                if minedData.empty or CompactPathName == "NG":
-                    print(minedData)
+                else:
+                    print("retry find log {i}")
+                    message_popup(3, "File not found", "Please, Check log file in SQS Log folder")
                     continue
-                if self.FITs.upper() == "ENABLE":
-                    self.UploadDataToFITs(minedData, current_path, CompactPathName)
-                    print(f"{self.serial} Finished ")
-                break
+                
+            minedData, current_path, CompactPathName = self.openDatabaseFile(file)
+            # print(minedData) 
+            # print(CompactPathName)
+            if minedData.empty or CompactPathName == "NG":
+                print(minedData)
+                continue
+            if self.FITs.upper() == "ENABLE":
+                self.UploadDataToFITs(minedData, current_path, CompactPathName)
+                print(f"{self.serial} Finished")
 
 if __name__  == "__main__":
     while True:
