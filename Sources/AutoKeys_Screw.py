@@ -518,7 +518,7 @@ class CAutoFITs_Screw():
     def aggregateAllDataAndSaveToFile(self):
         while True:
             self.clearlog()
-            serials = scan_serial(self.FITs, self.model, self.operation)
+            serials = scan_serial(self.FITs, self.model, self.operation, self.sub)
             print("main_serial\t", serials["main"])
             if serials["main"] == "quit":
                 print("User quit Program")
