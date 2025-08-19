@@ -78,7 +78,7 @@ class CAutoFITs_Screw():
         status = df["Unique ID"].str.contains("Complete Process", case=False, na=False).any()
         if not status:
             print(f"File {file} is not complete yet")
-            minedData = df_output
+            minedData = None
             current_path = file
             CompactPathName = "NG"
             return minedData, current_path, CompactPathName
@@ -550,7 +550,7 @@ class CAutoFITs_Screw():
             minedData, current_path, CompactPathName = self.openDatabaseFile(file)
             # print(minedData) 
             # print(CompactPathName)
-            if minedData.empty or CompactPathName == "NG":
+            if minedData == None or CompactPathName == "NG":
                 print(minedData)
                 continue
             if self.FITs.upper() == "ENABLE":
