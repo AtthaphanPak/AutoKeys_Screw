@@ -219,7 +219,7 @@ class CAutoFITs_Screw():
                     "EN": str(Operator), 
                     "Operation": str(self.operation), 
                     "SN": str(self.serial), 
-                    "Interface PBA SN": str(self.sub_sn[1]),
+                    "SN Interface": str(self.sub_sn[1]),
                     "BN Screw": str(self.sub_sn[0]),
                     "Program Name": "Interface connector to Top",
                     "Fixture jig": str(self.fixture),
@@ -283,7 +283,7 @@ class CAutoFITs_Screw():
                 data = {  
                     "EN": str(Operator), 
                     "Operation": str(self.operation), 
-                    "SN": str(self.serial),
+                    "SN unit": str(self.serial),
                     "BN Top cover": str(self.sub_sn[1]),
                     "BN Screw": str(self.sub_sn[0]),   
                     "Program Name": "Screwing Cover Screws Type1",

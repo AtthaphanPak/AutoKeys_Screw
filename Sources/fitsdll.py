@@ -47,7 +47,7 @@ def fn_Log(model: str, operation : str, parameters : str, values : str, revision
             return True
         else:
             lib.closeDB()
-            return fn_Log
+            return fn_log
     else: 
         lib.closeDB()
         return False
