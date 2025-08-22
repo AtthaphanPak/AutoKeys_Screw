@@ -78,7 +78,7 @@ class CAutoFITs_Screw():
         status = df["Unique ID"].str.contains("Complete Process", case=False, na=False).any()
         if not status:
             print(f"File {file} is not complete yet")
-            minedData = None
+            minedData = pd.DataFrame()
             current_path = file
             CompactPathName = "NG"
             return minedData, current_path, CompactPathName
@@ -548,12 +548,12 @@ class CAutoFITs_Screw():
                     continue
                 
             minedData, current_path, CompactPathName = self.openDatabaseFile(file)
-            # print(minedData) 
-            # print(CompactPathName)
-            if minedData == None or CompactPathName == "NG":
+            print(minedData) 
+            print(CompactPathName)
+            if minedData.empty or CompactPathName == "NG":
                 print(minedData)
                 continue
-            if self.FITs.upper() == "ENABLE":
+            if self.FITs.upper() == "PRODUCTION":
                 self.UploadDataToFITs(minedData, current_path, CompactPathName)
                 print(f"{self.serial} Finished")
 
