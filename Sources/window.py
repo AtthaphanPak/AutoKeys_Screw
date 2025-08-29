@@ -158,6 +158,6 @@ def message_popup(type, header, message):
     elif type == 3:
         messagebox.showerror(header, message)
 
-serial, subs = scan_serial("PRODUCTION", "Main line", "IN240", ["BN Screw", "Interface PBA SN"])
+# serial, subs = scan_serial("PRODUCTION", "Main line", "IN240", ["BN Screw", "Interface PBA SN"])
 # print(serial)
 # print(subs)
