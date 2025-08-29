@@ -102,5 +102,8 @@ def FitsDebugging():
 # lib.closeDB()
 # print(fn_Handshake("Main line", "IN230", "CIN251230000"))
 # print(fn_Handshake("Main line", "IN230", "CIN251230001"))
-# print(fn_Handshake("Main line", "IN230", "CIN251230002"))
-# print(fn_Handshake("Main line", "IN230", "CIN251230003"))
+# # print(fn_Handshake("Main line", "IN230", "CIN251230002"))
+# print(fn_Handshake("Main line", "IN240", "CIB252100002"))
+# print(fn_Handshake("Main line", "IN240", "CIB252900153"))
+
+# print(fn_Query("Interface connector", "IC200", "CIB252100002", "Result"))

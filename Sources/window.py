@@ -1,11 +1,12 @@
 import tkinter as tk
 from tkinter import messagebox
-from fitsdll import fn_Handshake
+from fitsdll import fn_Handshake, fn_Query
 
 def scan_serial(mode: str, model: str, operation: str, sub_names: list):
     main_result = {}
 
     def on_submit():
+        sub_serial = "" 
         serial = entry.get().strip()
         if mode.upper() == "PRODUCTION":
             if len(serial) == 12:
@@ -13,13 +14,26 @@ def scan_serial(mode: str, model: str, operation: str, sub_names: list):
                 if status is True:
                     main_result["main"] = serial
                     sub_serial = scan_sub_serial(root, sub_names)
-                    if sub_serial == "back":
-                        entry.delete(0, tk.END)
-                        entry.focus_set()
+                    print(sub_serial[1])
+                    if sub_serial[1][:3] == "CIB":
+                        if operation == "IN240":
+                            status = fn_Query("Interface connector", "IC200", sub_serial[1], "Result")
+                            if status == "PASS":
+                                main_result["subs"] = sub_serial
+                                root.quit()
+                                root.destroy()
+                            else:
+                                messagebox.showwarning("Handcheck Fail", f"Serial: {sub_serial[1]}\nMust be key Operation IC200 before use!!" )
+                                return
+                    else:
+                        messagebox.showwarning("Invalid serial", """Interface connector must be start with "CIB" """)
                         return
-                    main_result["subs"] = sub_serial
-                    root.quit()
-                    root.destroy()
+
+                elif sub_serial == "back":
+                    entry.delete(0, tk.END)
+                    entry.focus_set()
+                    return
+
                 else:
                     label_error.config(text=status)
             else:
@@ -144,6 +158,6 @@ def message_popup(type, header, message):
     elif type == 3:
         messagebox.showerror(header, message)
 
-# serial, subs = scan_main_serial("DEBUG", "Main line", "IN700", ["BN Screw", "Interface PBA SN"])
+serial, subs = scan_serial("PRODUCTION", "Main line", "IN240", ["BN Screw", "Interface PBA SN"])
 # print(serial)
 # print(subs)
