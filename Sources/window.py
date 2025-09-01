@@ -14,9 +14,8 @@ def scan_serial(mode: str, model: str, operation: str, sub_names: list):
                 if status is True:
                     main_result["main"] = serial
                     sub_serial = scan_sub_serial(root, sub_names)
-                    print(sub_serial[1])
-                    if sub_serial[1][:3] == "CIB":
-                        if operation == "IN240":
+                    if operation == "IN240":
+                        if sub_serial[1][:3] == "CIB":
                             status = fn_Query("Interface connector", "IC200", sub_serial[1], "Result")
                             if status == "PASS":
                                 main_result["subs"] = sub_serial
@@ -25,9 +24,13 @@ def scan_serial(mode: str, model: str, operation: str, sub_names: list):
                             else:
                                 messagebox.showwarning("Handcheck Fail", f"Serial: {sub_serial[1]}\nMust be key Operation IC200 before use!!" )
                                 return
+                        else:
+                            messagebox.showwarning("Invalid serial", """Interface connector must be start with "CIB" """)
+                            return
                     else:
-                        messagebox.showwarning("Invalid serial", """Interface connector must be start with "CIB" """)
-                        return
+                        main_result["subs"] = sub_serial
+                        root.quit()
+                        root.destroy()
 
                 elif sub_serial == "back":
                     entry.delete(0, tk.END)
